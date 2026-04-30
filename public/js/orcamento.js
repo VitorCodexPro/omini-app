@@ -377,7 +377,7 @@
       <div class="preview-wrap">
         <div class="preview-scroll">
           <div class="doc-page" id="preview-document">
-            <div class="doc-logo">${window.AppUtils.logoSvg()}</div>
+            <div class="doc-logo"><img src="/img/logo.png" alt="OMINI" style="height: 70px; width: auto;" /></div>
 
             <h2 class="doc-title">ORÇAMENTO</h2>
 
