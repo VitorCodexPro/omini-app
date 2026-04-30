@@ -445,7 +445,17 @@
     window.AppUtils.setButtonLoading(triggerButton, true, 'Gerando PDF...');
 
     try {
-      // Converte logo para base64 para garantir renderização no PDF
+      // Aguarda todas as imagens carregarem
+      const imagens = Array.from(target.querySelectorAll('img'));
+      await Promise.all(imagens.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      }));
+
+      // Converte logo para base64
       const img = target.querySelector('img');
       if (img && img.src && !img.src.startsWith('data:')) {
         const imgResponse = await fetch(img.src);
@@ -456,6 +466,8 @@
           reader.readAsDataURL(blob);
         });
         img.src = base64;
+        // Aguarda a imagem base64 renderizar
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
 
       const options = {
