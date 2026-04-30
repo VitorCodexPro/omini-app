@@ -766,9 +766,8 @@ textarea {
 }
 
 .doc-page {
-  width: 100%;
-  max-width: 794px;
-  margin: 0 auto;
+  width: 794px;
+  min-width: 794px;
   background: #ffffff;
   color: #111111;
   border-radius: 4px;
