@@ -105,6 +105,14 @@ textarea {
   height: 100%;
 }
 
+.brand-logo img {
+  height: 44px;
+  width: auto;
+  background: white;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
 .brand-name {
   display: flex;
   flex-direction: column;
