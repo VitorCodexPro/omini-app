@@ -502,34 +502,37 @@ async function baixarPreviewPdf(data, triggerButton) {
   }
 
   async function compartilharPreview(data, triggerButton) {
-    const resumo = [
-      `ORÇAMENTO: ${data.titulo}`,
-      `CLIENTE: ${data.cliente_nome}`,
-      `TOTAL: ${window.AppUtils.formatCurrencyBRL(data.total)}`
-    ].join('\n');
-
     window.AppUtils.setButtonLoading(triggerButton, true, 'Compartilhando...');
 
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: 'Orçamento OMINI',
-          text: resumo,
-          url: window.location.href
-        });
-        window.AppUtils.showToast('Orçamento compartilhado.', 'success');
-        return;
-      }
+      const itensTexto = data.itens.map(item => `• ${item.quantidade} ${item.descricao}`).join('\n');
 
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(resumo);
-        window.AppUtils.showToast('Resumo copiado para a área de transferência.', 'success');
-        return;
-      }
+      const mensagem = `
+*ORÇAMENTO - OMINI SISTEMAS INTEGRADOS*
 
-      window.AppUtils.showToast('Compartilhamento indisponível neste navegador.', 'warning');
+*Serviço:* ${data.titulo.toUpperCase()}
+*Cliente:* ${data.cliente_nome.toUpperCase()}
+*Data:* ${data.local_data.toUpperCase()}
+*AC.:* ${(data.atencao || '').toUpperCase()}
+
+*ITENS:*
+${itensTexto}
+
+*TOTAL: ${window.AppUtils.formatCurrencyBRL(data.total)}*
+
+*Forma de Pagamento:* ${data.forma_pagamento}
+${data.validade}
+
+_OMINI SISTEMAS INTEGRADOS_
+_Rua Amaraji, 372 – São Gabriel, BH/MG_
+_Tel.: 99997-6648_
+      `.trim();
+
+      const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+      window.open(urlWhatsApp, '_blank');
+      window.AppUtils.showToast('Abrindo WhatsApp...', 'success');
     } catch (error) {
-      window.AppUtils.showToast(error.message || 'Não foi possível compartilhar.', 'error');
+      window.AppUtils.showToast(error.message || 'Erro ao compartilhar.', 'error');
     } finally {
       window.AppUtils.setButtonLoading(triggerButton, false);
     }
