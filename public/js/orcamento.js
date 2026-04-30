@@ -472,7 +472,8 @@ async function baixarPreviewPdf(data, triggerButton) {
         </head><body>
           <div class="doc">
             <img src="${logoSrc}" style="height:100px;width:auto;margin-bottom:16px;display:block;" />
-            <h2 style="text-align:center;font-size:18px;letter-spacing:1px;margin-bottom:24px;">ORÇAMENTO</h2>
+            <h2 style="text-align:center;font-size:18px;letter-spacing:1px;margin-bottom:8px;">ORÇAMENTO</h2>
+            ${data.numero ? `<p style="text-align:center;font-size:11px;color:#666;margin-bottom:16px;letter-spacing:1px;">Nº OMI-${new Date().getFullYear()}-${String(data.numero).padStart(4,'0')}</p>` : ''}
             <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.titulo.toUpperCase()}</p>
             <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.cliente_nome.toUpperCase()}</p>
             <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.local_data.toUpperCase()}</p>
@@ -564,7 +565,8 @@ _Tel.: 99997-6648_
         </head><body>
           <div class="doc">
             <img src="${logoSrc}" style="height:100px;width:auto;margin-bottom:16px;display:block;" />
-            <h2 style="text-align:center;font-size:18px;letter-spacing:1px;margin-bottom:24px;">ORÇAMENTO</h2>
+            <h2 style="text-align:center;font-size:18px;letter-spacing:1px;margin-bottom:8px;">ORÇAMENTO</h2>
+            ${data.numero ? `<p style="text-align:center;font-size:11px;color:#666;margin-bottom:16px;letter-spacing:1px;">Nº OMI-${new Date().getFullYear()}-${String(data.numero).padStart(4,'0')}</p>` : ''}
             <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.titulo.toUpperCase()}</p>
             <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.cliente_nome.toUpperCase()}</p>
             <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.local_data.toUpperCase()}</p>
