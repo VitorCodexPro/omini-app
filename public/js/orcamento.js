@@ -464,11 +464,17 @@ async function baixarPreviewPdf(data, triggerButton) {
           <meta charset="UTF-8">
           <title>Orçamento - ${data.titulo}</title>
           <style>
-            * { box-sizing: border-box; margin: 0; padding: 0; }
-            body { background: white; font-family: Arial, sans-serif; }
-            .doc { width: 100%; max-width: 794px; margin: 0 auto; padding: 42px 34px; color: #111; }
-            @media print { body { margin: 0; } @page { margin: 10mm; size: A4; } }
-          </style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: white; font-family: Arial, sans-serif; }
+  .doc { width: 100%; max-width: 794px; margin: 0 auto; padding: 42px 34px; color: #111; }
+  @media print {
+    body { margin: 0; }
+    @page { 
+      margin: 10mm;
+      size: A4;
+    }
+  }
+</style>
         </head><body>
           <div class="doc">
             <img src="${logoSrc}" style="height:100px;width:auto;margin-bottom:16px;display:block;" />
@@ -498,7 +504,7 @@ async function baixarPreviewPdf(data, triggerButton) {
           <script>window.onload=function(){setTimeout(function(){window.print();},400);};<\/script>
         </body></html>`);
       janela.document.close();
-      window.AppUtils.showToast('Use "Salvar como PDF" na janela de impressão.', 'success');
+      window.AppUtils.showToast('Na impressão: desmarque "Cabeçalhos e rodapés" em Mais configurações.', 'success');
     } catch (error) {
       window.AppUtils.showToast(error.message || 'Erro ao gerar PDF.', 'error');
     } finally {
