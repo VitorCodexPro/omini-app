@@ -730,7 +730,6 @@ _Tel.: 99997-6648_
       const cliente = getClienteNome(data);
       const itens = extractItens(data);
       const numero = data.numero ? `OMI-${new Date(data.criado_em).getFullYear()}-${String(data.numero).padStart(4,'0')}` : '--';
-
       window.AppUtils.showModal(`
         <div class="modal-header">
           <h3 class="modal-title">Detalhes do Orçamento</h3>
