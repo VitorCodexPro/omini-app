@@ -445,11 +445,30 @@
     window.AppUtils.setButtonLoading(triggerButton, true, 'Gerando PDF...');
 
     try {
+      // Converte logo para base64 para garantir renderização no PDF
+      const img = target.querySelector('img');
+      if (img && img.src && !img.src.startsWith('data:')) {
+        const imgResponse = await fetch(img.src);
+        const blob = await imgResponse.blob();
+        const base64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+        img.src = base64;
+      }
+
       const options = {
-        margin: [8, 8, 8, 8],
+        margin: [10, 10, 10, 10],
         filename: `${sanitizeFileName(data.titulo)}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          windowWidth: 794
+        },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
