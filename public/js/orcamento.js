@@ -116,11 +116,13 @@
   function orcamentoCard(orcamento) {
     const clienteNome = getClienteNome(orcamento);
     const dataLocal = orcamento.local_data || window.AppUtils.formatDatePTBR(orcamento.criado_em);
+    const numero = orcamento.numero ? `OMI-${new Date(orcamento.criado_em).getFullYear()}-${String(orcamento.numero).padStart(4,'0')}` : '';
 
     return `
       <article class="card orcamento-card card-clickable" data-orcamento-id="${orcamento.id}">
         <div class="orcamento-head">
           <div>
+            ${numero ? `<p style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--accent);margin-bottom:3px;">${numero}</p>` : ''}
             <h3 class="orcamento-title">${window.AppUtils.escapeHtml(orcamento.titulo || 'Sem título')}</h3>
             <p class="orcamento-sub">${window.AppUtils.escapeHtml(clienteNome)}</p>
           </div>
@@ -348,6 +350,7 @@
 
     return {
       id: source.id || null,
+      numero: source.numero ?? null,
       titulo: source.titulo || 'Sem título',
       cliente_nome: source.cliente_nome || cliente?.nome || 'Cliente não informado',
       local_data: source.local_data || defaultLocalData(cliente?.cidade),
@@ -380,6 +383,7 @@
             <div class="doc-logo"><img src="/img/logo.png" alt="OMINI" style="height: 100px; width: auto;" /></div>
 
             <h2 class="doc-title">ORÇAMENTO</h2>
+            ${data.numero ? `<p style="text-align:center;font-size:11px;color:#666;margin-bottom:16px;letter-spacing:1px;">Nº OMI-${new Date().getFullYear()}-${String(data.numero).padStart(4,'0')}</p>` : ''}
 
             <p class="doc-line">${window.AppUtils.escapeHtml(data.titulo.toUpperCase())}</p>
             <p class="doc-line">${window.AppUtils.escapeHtml(data.cliente_nome.toUpperCase())}</p>
@@ -725,6 +729,7 @@ _Tel.: 99997-6648_
 
       const cliente = getClienteNome(data);
       const itens = extractItens(data);
+      const numero = data.numero ? `OMI-${new Date(data.criado_em).getFullYear()}-${String(data.numero).padStart(4,'0')}` : '--';
 
       window.AppUtils.showModal(`
         <div class="modal-header">
@@ -733,6 +738,10 @@ _Tel.: 99997-6648_
         </div>
 
         <div class="detail-grid">
+          <div class="detail-row">
+            <strong>Nº Orçamento</strong>
+            <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent);">${numero}</span>
+          </div>
           <div class="detail-row">
             <strong>Título</strong>
             <span>${window.AppUtils.escapeHtml(data.titulo || 'Sem título')}</span>
