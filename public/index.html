@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>OMINI Orçamentos</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+  </head>
+  <body>
+    <div id="app">
+      <header id="main-header">
+        <div class="brand-wrap" aria-label="OMINI Sistemas Integrados">
+          <div class="brand-logo" aria-hidden="true">
+            <svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="30" cy="30" r="27" stroke="currentColor" stroke-width="3" fill="none" />
+              <circle cx="30" cy="30" r="14" stroke="currentColor" stroke-width="2.5" fill="none" />
+              <circle cx="30" cy="30" r="4" fill="currentColor" />
+              <text
+                x="65"
+                y="26"
+                font-family="Arial"
+                font-weight="bold"
+                font-size="16"
+                fill="currentColor"
+                letter-spacing="1"
+              >
+                OMINI
+              </text>
+              <text
+                x="65"
+                y="40"
+                font-family="Arial"
+                font-size="8"
+                fill="currentColor"
+                letter-spacing="1"
+                opacity="0.6"
+              >
+                SISTEMAS INTEGRADOS
+              </text>
+            </svg>
+          </div>
+          <div class="brand-name">
+            <span>OMINI</span>
+            <small>Sistemas Integrados</small>
+          </div>
+        </div>
+
+        <h1 id="screen-title">Início</h1>
+      </header>
+
+      <main id="view-container" aria-live="polite"></main>
+
+      <nav id="bottom-nav" aria-label="Navegação principal">
+        <a href="#/" data-nav="#/" class="nav-item active" aria-label="Início">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-label">Início</span>
+        </a>
+        <a href="#/orcamentos" data-nav="#/orcamentos" class="nav-item" aria-label="Orçamentos">
+          <span class="nav-icon">📋</span>
+          <span class="nav-label">Orçamentos</span>
+        </a>
+        <a href="#/novo" data-nav="#/novo" class="nav-item" aria-label="Novo orçamento">
+          <span class="nav-icon">➕</span>
+          <span class="nav-label">Novo</span>
+        </a>
+        <a href="#/clientes" data-nav="#/clientes" class="nav-item" aria-label="Clientes">
+          <span class="nav-icon">👥</span>
+          <span class="nav-label">Clientes</span>
+        </a>
+      </nav>
+    </div>
+
+    <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+    <div id="modal-container"></div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/orcamento.js"></script>
+    <script src="/js/clientes.js"></script>
+    <script src="/js/app.js"></script>
+  </body>
+</html>
