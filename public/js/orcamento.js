@@ -502,7 +502,7 @@ async function baixarPreviewPdf(data, triggerButton) {
   }
 
   async function compartilharPreview(data, triggerButton) {
-    window.AppUtils.setButtonLoading(triggerButton, true, 'Compartilhando...');
+    window.AppUtils.setButtonLoading(triggerButton, true, 'Preparando...');
 
     try {
       const itensTexto = data.itens.map(item => `• ${item.quantidade} ${item.descricao}`).join('\n');
@@ -528,9 +528,74 @@ _Rua Amaraji, 372 – São Gabriel, BH/MG_
 _Tel.: 99997-6648_
       `.trim();
 
+      // Gera o PDF primeiro
+      let logoSrc = '/img/logo.png';
+      try {
+        const imgResponse = await fetch('/img/logo.png');
+        const blob = await imgResponse.blob();
+        logoSrc = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+      } catch (e) {}
+
+      const itensMarkup = data.itens.map(item => `
+        <div style="display:flex;gap:10px;font-size:13px;text-transform:uppercase;margin-bottom:6px;">
+          <span style="width:38px;font-weight:bold;">${item.quantidade}</span>
+          <span>${item.descricao.toUpperCase()}</span>
+        </div>`).join('');
+
+      const janela = window.open('', '_blank');
+      janela.document.write(`<!DOCTYPE html>
+        <html><head>
+          <meta charset="UTF-8">
+          <title>Orçamento - ${data.titulo}</title>
+          <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { background: white; font-family: Arial, sans-serif; }
+            .doc { width: 100%; max-width: 794px; margin: 0 auto; padding: 42px 34px; color: #111; }
+            @media print { body { margin: 0; } @page { margin: 10mm; size: A4; } }
+          </style>
+        </head><body>
+          <div class="doc">
+            <img src="${logoSrc}" style="height:100px;width:auto;margin-bottom:16px;display:block;" />
+            <h2 style="text-align:center;font-size:18px;letter-spacing:1px;margin-bottom:24px;">ORÇAMENTO</h2>
+            <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.titulo.toUpperCase()}</p>
+            <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.cliente_nome.toUpperCase()}</p>
+            <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.local_data.toUpperCase()}</p>
+            <p style="text-transform:uppercase;font-size:13px;margin-bottom:20px;font-weight:bold;">AC. ${(data.atencao || '').toUpperCase()}</p>
+            <div style="margin-bottom:20px;">${itensMarkup}</div>
+            <div style="display:flex;justify-content:space-between;border-top:1px solid #444;border-bottom:1px solid #444;padding:10px 0;margin-bottom:18px;font-weight:bold;font-size:14px;">
+              <span>TOTAL</span>
+              <span>${window.AppUtils.formatCurrencyBRL(data.total)}</span>
+            </div>
+            <div style="font-size:12px;margin-bottom:24px;">
+              <strong>FORMA DE PAGAMENTO:</strong><br>
+              ${data.forma_pagamento}<br>
+              ${data.validade}
+            </div>
+            <div style="border-top:1px solid #666;padding-top:12px;text-align:center;font-size:11px;line-height:1.6;text-transform:uppercase;">
+              OMINI SISTEMAS INTEGRADOS<br>
+              RUA AMARAJI, 372 - BAIRRO SÃO GABRIEL<br>
+              BELO HORIZONTE - MG<br>
+              TEL.: 99997-6648
+            </div>
+          </div>
+          <script>
+            window.onload = function() {
+              setTimeout(function() { window.print(); }, 400);
+            };
+          <\/script>
+        </body></html>`);
+      janela.document.close();
+
+      // Aguarda 1 segundo e abre o WhatsApp
+      await new Promise(resolve => setTimeout(resolve, 1000));
       const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
       window.open(urlWhatsApp, '_blank');
-      window.AppUtils.showToast('Abrindo WhatsApp...', 'success');
+
+      window.AppUtils.showToast('Salve o PDF e envie pelo WhatsApp!', 'success');
     } catch (error) {
       window.AppUtils.showToast(error.message || 'Erro ao compartilhar.', 'error');
     } finally {
