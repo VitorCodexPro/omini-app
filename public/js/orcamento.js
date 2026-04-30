@@ -439,59 +439,32 @@
     window.AppUtils.setButtonLoading(triggerButton, true, 'Gerando PDF...');
 
     try {
-      // Busca logo em base64
-      let logoSrc = '/img/logo.png';
-      try {
-        const imgResponse = await fetch('/img/logo.png');
-        const blob = await imgResponse.blob();
-        logoSrc = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(blob);
-        });
-      } catch (e) {}
+      const source = document.getElementById('preview-document');
+      if (!source) {
+        throw new Error('Elemento de preview não encontrado.');
+      }
 
-      // Monta itens
-      const itensMarkup = data.itens.length
-        ? data.itens.map(item => `
-            <div style="display:flex;gap:10px;font-size:13px;text-transform:uppercase;margin-bottom:6px;">
-              <span style="width:38px;font-weight:bold;">${item.quantidade}</span>
-              <span>${item.descricao.toUpperCase()}</span>
-            </div>`).join('')
-        : '<p>SEM ITENS</p>';
+      // Clona o elemento para fora do modal
+      const clone = source.cloneNode(true);
+      clone.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:white;z-index:-1;';
+      document.body.appendChild(clone);
 
-      // Cria elemento temporário fora do modal
-      const temp = document.createElement('div');
-      temp.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:white;z-index:-1;';
-      temp.innerHTML = `
-        <div style="width:794px;padding:42px 34px;background:white;color:#111;font-family:Arial,sans-serif;line-height:1.4;">
-          <img src="${logoSrc}" style="height:100px;width:auto;margin-bottom:16px;" />
-          <h2 style="text-align:center;font-size:18px;letter-spacing:1px;margin-bottom:24px;">ORÇAMENTO</h2>
-          <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.titulo.toUpperCase()}</p>
-          <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.cliente_nome.toUpperCase()}</p>
-          <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.local_data.toUpperCase()}</p>
-          <p style="text-transform:uppercase;font-size:13px;margin-bottom:20px;font-weight:bold;">AC. ${(data.atencao || '').toUpperCase()}</p>
-          <div style="margin-bottom:20px;">${itensMarkup}</div>
-          <div style="display:flex;justify-content:space-between;border-top:1px solid #444;border-bottom:1px solid #444;padding:10px 0;margin-bottom:18px;font-weight:bold;font-size:14px;">
-            <span>TOTAL</span>
-            <span>${window.AppUtils.formatCurrencyBRL(data.total)}</span>
-          </div>
-          <div style="font-size:12px;margin-bottom:24px;white-space:pre-line;">
-            <strong>FORMA DE PAGAMENTO:</strong><br>
-            ${data.forma_pagamento}<br>
-            ${data.validade}
-          </div>
-          <div style="border-top:1px solid #666;padding-top:12px;text-align:center;font-size:11px;line-height:1.6;text-transform:uppercase;">
-            OMINI SISTEMAS INTEGRADOS<br>
-            RUA AMARAJI, 372 - BAIRRO SÃO GABRIEL<br>
-            BELO HORIZONTE - MG<br>
-            TEL.: 99997-6648
-          </div>
-        </div>
-      `;
+      // Converte imagens para base64 no clone
+      const imagens = Array.from(clone.querySelectorAll('img'));
+      await Promise.all(imagens.map(async (img) => {
+        try {
+          const response = await fetch(img.src);
+          const blob = await response.blob();
+          const base64 = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+          img.src = base64;
+        } catch (e) {}
+      }));
 
-      document.body.appendChild(temp);
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       const options = {
         margin: 0,
@@ -501,8 +474,8 @@
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      await window.html2pdf().set(options).from(temp.firstElementChild).save();
-      document.body.removeChild(temp);
+      await window.html2pdf().set(options).from(clone).save();
+      document.body.removeChild(clone);
       window.AppUtils.showToast('PDF gerado com sucesso.', 'success');
     } catch (error) {
       window.AppUtils.showToast(error.message || 'Erro ao gerar PDF.', 'error');
