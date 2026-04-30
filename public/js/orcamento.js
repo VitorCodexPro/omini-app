@@ -6,6 +6,7 @@
     orcamentos: [],
     clientes: [],
     filtroStatus: 'todos',
+    termoBusca: '',
     detalhesCache: {}
   };
 
@@ -235,21 +236,22 @@
 
   function renderOrcamentosFiltrados() {
     const listTarget = document.getElementById('orcamentos-lista');
-    if (!listTarget) {
-      return;
+    if (!listTarget) return;
+
+    let filtrados = state.filtroStatus === 'todos'
+      ? state.orcamentos
+      : state.orcamentos.filter(item => item.status === state.filtroStatus);
+
+    if (state.termoBusca) {
+      filtrados = filtrados.filter(item => {
+        const titulo = (item.titulo || '').toLowerCase();
+        const cliente = getClienteNome(item).toLowerCase();
+        return titulo.includes(state.termoBusca) || cliente.includes(state.termoBusca);
+      });
     }
 
-    const filtrados =
-      state.filtroStatus === 'todos'
-        ? state.orcamentos
-        : state.orcamentos.filter((item) => item.status === state.filtroStatus);
-
     if (!filtrados.length) {
-      listTarget.innerHTML = `
-        <div class="empty-state">
-          Nenhum orçamento encontrado para o filtro selecionado.
-        </div>
-      `;
+      listTarget.innerHTML = `<div class="empty-state">Nenhum orçamento encontrado.</div>`;
       return;
     }
 
@@ -278,6 +280,8 @@
           <h2 class="section-title">Lista de Orçamentos</h2>
         </div>
 
+        <div style="margin-bottom:10px;"><input class="input" id="orcamentos-busca" placeholder="🔍 Buscar por título ou cliente..." style="width:100%;" /></div>
+
         <div class="filter-row" id="orcamentos-filtro">
           <button class="chip-filter active" data-status="todos">Todos</button>
           <button class="chip-filter" data-status="pendente">Pendente</button>
@@ -303,6 +307,14 @@
       });
     }
 
+    const buscaInput = document.getElementById('orcamentos-busca');
+    if (buscaInput) {
+      buscaInput.addEventListener('input', () => {
+        state.termoBusca = buscaInput.value.toLowerCase().trim();
+        renderOrcamentosFiltrados();
+      });
+    }
+
     const listTarget = document.getElementById('orcamentos-lista');
     if (listTarget) {
       listTarget.addEventListener('click', (event) => {
@@ -316,6 +328,7 @@
 
     try {
       await carregarOrcamentos(true);
+      state.termoBusca = '';
       renderOrcamentosFiltrados();
     } catch (error) {
       if (listTarget) {
