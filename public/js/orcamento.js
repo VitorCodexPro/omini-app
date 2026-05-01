@@ -392,7 +392,7 @@
     return `
       <div class="preview-wrap">
         <div class="preview-scroll">
-          <div class="doc-page" id="preview-document">
+          <div class="doc-page" id="preview-document" style="background-image:url('/img/logo-transpa.png');background-repeat:no-repeat;background-position:center center;background-size:65%;opacity-adjust:exact;">
             <div class="doc-logo"><img src="/img/logo.png" alt="OMINI" style="height: 100px; width: auto;" /></div>
 
             <h2 class="doc-title">ORÇAMENTO</h2>
