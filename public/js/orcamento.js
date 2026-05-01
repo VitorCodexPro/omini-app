@@ -425,6 +425,7 @@
               TEL.: 99997-6648
             </div>
           </div>
+          </div>
         </div>
 
         <div class="btn-row">
