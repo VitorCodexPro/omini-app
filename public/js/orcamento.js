@@ -280,7 +280,7 @@
           <h2 class="section-title">Lista de Orçamentos</h2>
         </div>
 
-        <div style="margin-bottom:10px;"><input class="input" id="orcamentos-busca" placeholder="🔍 Buscar por título ou cliente..." style="width:100%;" /></div>
+        <div style="margin-bottom:10px;"><input class="input" id="orcamentos-busca" placeholder="Buscar por título ou cliente..." style="width:100%;" /></div>
 
         <div class="filter-row" id="orcamentos-filtro">
           <button class="chip-filter active" data-status="todos">Todos</button>
