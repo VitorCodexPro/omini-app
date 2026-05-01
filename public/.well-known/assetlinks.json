@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.omini.orcamentos",
+        "sha256_cert_fingerprints": ["CF:48:E3:BB:3A:FF:00:E3:2B:00:40:CB:46:A0:BA:14:B6:AA:01:13:1D:EC:67:19:20:B5:31:DF:FB:61:2E:60"]
+      }
+    }]
