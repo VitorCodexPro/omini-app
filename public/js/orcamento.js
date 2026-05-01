@@ -453,6 +453,7 @@ async function baixarPreviewPdf(data, triggerButton) {
     try {
       // Busca logo em base64
       let logoSrc = '/img/logo.png';
+      let logoWatermark = '/img/logo-transpa.png';
       try {
         const imgResponse = await fetch('/img/logo.png');
         const blob = await imgResponse.blob();
@@ -460,6 +461,15 @@ async function baixarPreviewPdf(data, triggerButton) {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result);
           reader.readAsDataURL(blob);
+        });
+      } catch (e) {}
+      try {
+        const wmResponse = await fetch('/img/logo-transpa.png');
+        const wmBlob = await wmResponse.blob();
+        logoWatermark = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(wmBlob);
         });
       } catch (e) {}
 
@@ -489,7 +499,9 @@ async function baixarPreviewPdf(data, triggerButton) {
   }
 </style>
         </head><body>
-          <div class="doc">
+          <div class="doc" style="position:relative;">
+            <img src="${logoWatermark}" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:70%;opacity:0.06;pointer-events:none;z-index:0;" />
+            <div style="position:relative;z-index:1;">
             <img src="${logoSrc}" style="height:100px;width:auto;margin-bottom:16px;display:block;" />
             <h2 style="text-align:center;font-size:18px;letter-spacing:1px;margin-bottom:8px;">ORÇAMENTO</h2>
             ${data.numero ? `<p style="text-align:center;font-size:11px;color:#666;margin-bottom:16px;letter-spacing:1px;">Nº OMI-${new Date().getFullYear()}-${String(data.numero).padStart(4,'0')}</p>` : ''}
@@ -512,6 +524,7 @@ async function baixarPreviewPdf(data, triggerButton) {
               RUA AMARAJI, 372 - BAIRRO SÃO GABRIEL<br>
               BELO HORIZONTE - MG<br>
               TEL.: 99997-6648
+            </div>
             </div>
           </div>
           <script>window.onload=function(){setTimeout(function(){window.print();},400);};<\/script>
