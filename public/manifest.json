@@ -1,0 +1,22 @@
+{
+  "name": "OMINI Orçamentos",
+  "short_name": "OMINI",
+  "description": "Gerador de orçamentos OMINI Sistemas Integrados",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#c8a96e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/img/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
