@@ -861,53 +861,33 @@ _Tel.: 99997-6648_
   }
 
   function itemRowHtml(item, ordem) {
+    const texto = item.texto || (item.descricao ? (item.quantidade ? item.quantidade + ' ' + item.descricao : item.descricao) : '');
     return `
-      <div class="item-row" data-item-row data-ordem="${ordem}">
-        <input
-          class="input item-qtd"
-          name="item_qtd"
-          placeholder="Qtd"
-          value="${window.AppUtils.escapeHtml(item.quantidade || '01')}"
-        />
-        <input
-          class="input item-descricao"
-          name="item_descricao"
-          placeholder="Descrição do item"
-          value="${window.AppUtils.escapeHtml(item.descricao || '')}"
-        />
-        <input
-          class="input item-valor"
-          name="item_valor"
-          placeholder="Valor"
-          inputmode="decimal"
-          value="${window.AppUtils.escapeHtml(
-            item.valor !== null && item.valor !== undefined && item.valor !== ''
-              ? Number(item.valor).toFixed(2)
-              : ''
-          )}"
-        />
-        <button type="button" class="item-remove" data-remove-item aria-label="Remover item">×</button>
-      </div>
+      <textarea
+        class="input item-texto"
+        name="item_texto"
+        placeholder="Ex: 01 BOTEIRA INOX INTELBRAS&#10;01 MINI TRANSMISSOR CODIFICADO&#10;01 RECEPTOR 315 MHZ"
+        rows="6"
+        style="resize:vertical;line-height:1.8;font-family:'IBM Plex Mono',monospace;font-size:13px;"
+      >${window.AppUtils.escapeHtml(texto)}</textarea>
     `;
   }
 
   function getItensFromForm(form) {
-    const rows = Array.from(form.querySelectorAll('[data-item-row]'));
-
-    return rows
-      .map((row, index) => {
-        const qtd = row.querySelector('.item-qtd')?.value.trim() || '01';
-        const descricao = row.querySelector('.item-descricao')?.value.trim() || '';
-        const valorRaw = row.querySelector('.item-valor')?.value || '';
-
-        return {
-          descricao,
-          quantidade: qtd || '01',
-          valor: valorRaw ? parseNumber(valorRaw) : null,
-          ordem: index
-        };
-      })
-      .filter((item) => item.descricao);
+    const textarea = form.querySelector('.item-texto');
+    if (!textarea) return [];
+    const texto = textarea.value.trim();
+    if (!texto) return [];
+    // Cada linha vira um item
+    return texto.split('\n')
+      .map((linha, index) => ({
+        descricao: linha.trim(),
+        quantidade: '01',
+        texto: linha.trim(),
+        valor: null,
+        ordem: index
+      }))
+      .filter(item => item.descricao);
   }
 
   function updateItensOrder(form) {
@@ -1014,37 +994,7 @@ _Tel.: 99997-6648_
     const previewBtn = form.querySelector('#btn-preview-orcamento');
     const totalInput = form.querySelector('#total');
 
-    if (addItemBtn && itensList) {
-      addItemBtn.addEventListener('click', () => {
-        itensList.insertAdjacentHTML('beforeend', itemRowHtml({}, itensList.children.length));
-        updateItensOrder(form);
-      });
-    }
 
-    if (itensList) {
-      itensList.addEventListener('click', (event) => {
-        const removeButton = event.target.closest('[data-remove-item]');
-        if (!removeButton) {
-          return;
-        }
-
-        const rows = itensList.querySelectorAll('[data-item-row]');
-        if (rows.length <= 1) {
-          window.AppUtils.showToast('Pelo menos um item deve permanecer no orçamento.', 'warning');
-          return;
-        }
-
-        removeButton.closest('[data-item-row]')?.remove();
-        updateItensOrder(form);
-        recalculateTotalByItens(form);
-      });
-
-      itensList.addEventListener('input', (event) => {
-        if (event.target.classList.contains('item-valor')) {
-          recalculateTotalByItens(form);
-        }
-      });
-    }
 
     if (totalInput) {
       totalInput.addEventListener('input', () => updateTotalDisplay(form));
@@ -1252,10 +1202,10 @@ _Tel.: 99997-6648_
 
             <div class="form-section">
               <h2 class="form-legend">5. Itens</h2>
-              <div id="itens-list" class="items-list">
-                ${itens.map((item, index) => itemRowHtml(item, index)).join('')}
+              <div class="form-group">
+                <label>Digite os itens (um por linha)</label>
+                ${itemRowHtml({texto: itens.map(i => (i.texto || (i.quantidade ? i.quantidade + ' ' + i.descricao : i.descricao))).join('\n')}, 0)}
               </div>
-              <button type="button" id="btn-add-item" class="btn btn-secondary">+ Adicionar Item</button>
             </div>
 
             <div class="form-section">
