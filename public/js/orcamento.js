@@ -947,6 +947,16 @@ _Tel.: 99997-6648_
       return { cliente_id: null, cliente_nome: '' };
     }
 
+    // Verifica se já existe cliente com esse nome (case insensitive)
+    const existente = state.clientes.find(c =>
+      c.nome.trim().toLowerCase() === clienteLivre.toLowerCase()
+    );
+
+    if (existente) {
+      return { cliente_id: existente.id, cliente_nome: existente.nome };
+    }
+
+    // Não existe — cria novo
     const cidade = extractCidadeFromLocalData(form.local_data?.value || '');
     const response = await window.ClientesAPI.criar({
       nome: clienteLivre,
@@ -995,6 +1005,47 @@ _Tel.: 99997-6648_
     const totalInput = form.querySelector('#total');
 
 
+
+    // Autocomplete cliente livre
+    const clienteLivreInput = form.querySelector('#cliente_livre');
+    const sugestoesDiv = form.querySelector('#cliente-sugestoes');
+    if (clienteLivreInput && sugestoesDiv) {
+      clienteLivreInput.addEventListener('input', () => {
+        const termo = clienteLivreInput.value.trim().toLowerCase();
+        if (!termo || termo.length < 2) {
+          sugestoesDiv.style.display = 'none';
+          return;
+        }
+        const matches = state.clientes.filter(c =>
+          c.nome.toLowerCase().includes(termo)
+        );
+        if (!matches.length) {
+          sugestoesDiv.style.display = 'none';
+          return;
+        }
+        sugestoesDiv.innerHTML = matches.map(c => `
+          <div data-cliente-id="${c.id}" data-cliente-nome="${window.AppUtils.escapeHtml(c.nome)}"
+            style="padding:10px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--border);color:var(--text);">
+            ${window.AppUtils.escapeHtml(c.nome)}
+          </div>`).join('');
+        sugestoesDiv.style.display = 'block';
+        sugestoesDiv.querySelectorAll('[data-cliente-id]').forEach(item => {
+          item.addEventListener('click', () => {
+            clienteLivreInput.value = item.dataset.clienteNome;
+            const select = form.querySelector('#cliente_id');
+            if (select) select.value = '';
+            sugestoesDiv.style.display = 'none';
+          });
+          item.addEventListener('mouseover', () => item.style.background = '#2a2a2a');
+          item.addEventListener('mouseout', () => item.style.background = '');
+        });
+      });
+      document.addEventListener('click', (e) => {
+        if (!clienteLivreInput.contains(e.target) && !sugestoesDiv.contains(e.target)) {
+          sugestoesDiv.style.display = 'none';
+        }
+      });
+    }
 
     if (totalInput) {
       totalInput.addEventListener('input', () => updateTotalDisplay(form));
@@ -1160,7 +1211,7 @@ _Tel.: 99997-6648_
                   ${clienteOptionsMarkup(clienteSelecionado)}
                 </select>
               </div>
-              <div class="form-group">
+              <div class="form-group" style="position:relative;">
                 <label for="cliente_livre">Ou cliente livre</label>
                 <input
                   class="input"
@@ -1168,7 +1219,9 @@ _Tel.: 99997-6648_
                   name="cliente_livre"
                   value="${window.AppUtils.escapeHtml(clienteLivre)}"
                   placeholder="Digite um nome de cliente"
+                  autocomplete="off"
                 />
+                <div id="cliente-sugestoes" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1f1f1f;border:1px solid var(--border);border-radius:0 0 8px 8px;z-index:50;max-height:180px;overflow-y:auto;"></div>
               </div>
             </div>
 
