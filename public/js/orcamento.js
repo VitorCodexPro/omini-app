@@ -381,7 +381,6 @@
           .map(
             (item) => `
             <div class="doc-item">
-              <span class="doc-item-qtd">${window.AppUtils.escapeHtml(item.quantidade)}</span>
               <span>${window.AppUtils.escapeHtml(item.descricao.toUpperCase())}</span>
             </div>
           `
@@ -476,9 +475,8 @@ async function baixarPreviewPdf(data, triggerButton) {
 
       const itensMarkup = data.itens.length
         ? data.itens.map(item => `
-            <div style="display:flex;gap:10px;font-size:13px;text-transform:uppercase;margin-bottom:6px;">
-              <span style="width:38px;font-weight:bold;">${item.quantidade}</span>
-              <span>${item.descricao.toUpperCase()}</span>
+            <div style="font-size:13px;text-transform:uppercase;margin-bottom:6px;">
+              ${item.descricao.toUpperCase()}
             </div>`).join('')
         : '<p>SEM ITENS</p>';
 
@@ -588,9 +586,8 @@ _Tel.: 99997-6648_
       } catch (e) {}
 
       const itensMarkup = data.itens.map(item => `
-        <div style="display:flex;gap:10px;font-size:13px;text-transform:uppercase;margin-bottom:6px;">
-          <span style="width:38px;font-weight:bold;">${item.quantidade}</span>
-          <span>${item.descricao.toUpperCase()}</span>
+        <div style="font-size:13px;text-transform:uppercase;margin-bottom:6px;">
+          ${item.descricao.toUpperCase()}
         </div>`).join('');
 
       const janela = window.open('', '_blank');
