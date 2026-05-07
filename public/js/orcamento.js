@@ -540,7 +540,7 @@ async function baixarPreviewPdf(data, triggerButton) {
     window.AppUtils.setButtonLoading(triggerButton, true, 'Preparando...');
 
     try {
-      const itensTexto = data.itens.map(item => `• ${item.quantidade} ${item.descricao}`).join('\n');
+      const itensTexto = data.itens.map(item => `• ${item.descricao}`).join('\n');
 
       const mensagem = `
 *ORÇAMENTO - OMINI SISTEMAS INTEGRADOS*
@@ -858,7 +858,7 @@ _Tel.: 99997-6648_
   }
 
   function itemRowHtml(item, ordem) {
-    const texto = item.texto || (item.descricao ? (item.quantidade ? item.quantidade + ' ' + item.descricao : item.descricao) : '');
+    const texto = item.texto || item.descricao || '';
     return `
       <textarea
         class="input item-texto"
@@ -1254,7 +1254,7 @@ _Tel.: 99997-6648_
               <h2 class="form-legend">5. Itens</h2>
               <div class="form-group">
                 <label>Digite os itens (um por linha)</label>
-                ${itemRowHtml({texto: itens.map(i => (i.texto || (i.quantidade ? i.quantidade + ' ' + i.descricao : i.descricao))).join('\n')}, 0)}
+                ${itemRowHtml({texto: itens.map(i => (i.texto || i.descricao || '')).join('\n')}, 0)}
               </div>
             </div>
 
