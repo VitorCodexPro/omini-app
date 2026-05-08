@@ -198,10 +198,17 @@
     container.innerHTML = `
       <section class="view-section">
         <div class="section-header">
-          <h2 class="section-title">Rotas do Dia</h2>
+          <h2 class="section-title">Rotas</h2>
           <button class="btn btn-primary btn-small" id="btn-nova-rota">+ Nova Visita</button>
         </div>
-        <div class="form-group">
+        <div class="filter-row" style="margin-bottom:10px;">
+          <button class="chip-filter active" data-filtro="hoje">Hoje</button>
+          <button class="chip-filter" data-filtro="amanha">Amanhã</button>
+          <button class="chip-filter" data-filtro="semana">Semana</button>
+          <button class="chip-filter" data-filtro="todas">Todas</button>
+          <button class="chip-filter" data-filtro="data">Por Data</button>
+        </div>
+        <div id="rotas-data-container" style="display:none;margin-bottom:10px;">
           <input type="date" class="input" id="rotas-data" value="${hoje()}" />
         </div>
         <div id="rotas-lista">${window.AppUtils.renderSkeletonCards(3)}</div>
@@ -210,11 +217,57 @@
 
     document.getElementById('btn-nova-rota')?.addEventListener('click', () => abrirModalRota(null));
 
-    async function carregarRotas(data) {
+    function amanha() {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      return d.toISOString().split('T')[0];
+    }
+
+    function inicioSemana() {
+      const d = new Date();
+      d.setDate(d.getDate() - d.getDay());
+      return d.toISOString().split('T')[0];
+    }
+
+    function fimSemana() {
+      const d = new Date();
+      d.setDate(d.getDate() + (6 - d.getDay()));
+      return d.toISOString().split('T')[0];
+    }
+
+    let filtroAtivo = 'hoje';
+
+    document.querySelectorAll('[data-filtro]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-filtro]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filtroAtivo = btn.dataset.filtro;
+        const dataContainer = document.getElementById('rotas-data-container');
+        if (filtroAtivo === 'data') {
+          dataContainer.style.display = '';
+        } else {
+          dataContainer.style.display = 'none';
+          carregarRotas(filtroAtivo);
+        }
+      });
+    });
+
+    document.getElementById('rotas-data')?.addEventListener('change', (e) => {
+      if (filtroAtivo === 'data') carregarRotas(e.target.value);
+    });
+
+    async function carregarRotas(filtro) {
       const lista = document.getElementById('rotas-lista');
       if (!lista) return;
       lista.innerHTML = window.AppUtils.renderSkeletonCards(3);
-      const response = await RotasAPI.listar(data);
+
+      let url = '/api/rotas';
+      if (filtro === 'hoje') url += `?data=${hoje()}`;
+      else if (filtro === 'amanha') url += `?data=${amanha()}`;
+      else if (filtro === 'semana') url += `?inicio=${inicioSemana()}&fim=${fimSemana()}`;
+      else if (filtro && filtro !== 'todas') url += `?data=${filtro}`;
+
+      const response = await window.API.get(url);
       if (response.error) {
         lista.innerHTML = `<div class="empty-state">Erro ao carregar rotas.</div>`;
         return;

@@ -40,8 +40,11 @@ module.exports = async function handler(req, res) {
       }
       const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
       const data_visita = url.searchParams.get('data');
-      let query = supabase.from('rotas').select('*').order('criado_em', { ascending: true });
+      const inicio = url.searchParams.get('inicio');
+      const fim = url.searchParams.get('fim');
+      let query = supabase.from('rotas').select('*').order('data_visita', { ascending: true }).order('criado_em', { ascending: true });
       if (data_visita) query = query.eq('data_visita', data_visita);
+      else if (inicio && fim) query = query.gte('data_visita', inicio).lte('data_visita', fim);
       const { data, error } = await query;
       if (error) return sendResponse(res, 500, null, error.message);
       return sendResponse(res, 200, data || []);
