@@ -326,6 +326,16 @@
       };
     }
 
+    if (route === '#/rotas') {
+      return {
+        key: '#/rotas',
+        title: 'Rotas',
+        navKey: '#/rotas',
+        handler: () => window.RotasUI.renderRotasView(),
+        params: {}
+      };
+    }
+
     return null;
   }
 
