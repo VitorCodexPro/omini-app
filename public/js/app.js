@@ -336,6 +336,16 @@
       };
     }
 
+    if (route === '#/recibos') {
+      return {
+        key: '#/recibos',
+        title: 'Recibos',
+        navKey: '#/recibos',
+        handler: () => window.RecibosUI.renderRecibosView(),
+        params: {}
+      };
+    }
+
     return null;
   }
 
