@@ -270,76 +270,169 @@
 
   async function renderListaOrcamentos() {
     const container = document.getElementById('view-container');
-    if (!container) {
-      return;
-    }
+    if (!container) return;
 
     container.innerHTML = `
       <section class="view-section" id="orcamentos-view">
         <div class="section-header">
-          <h2 class="section-title">Lista de Orçamentos</h2>
+          <h2 class="section-title">Orçamentos</h2>
         </div>
-
-        <div style="margin-bottom:10px;"><input class="input" id="orcamentos-busca" placeholder="Buscar por título ou cliente..." style="width:100%;" /></div>
-
-        <div class="filter-row" id="orcamentos-filtro">
-          <button class="chip-filter active" data-status="todos">Todos</button>
-          <button class="chip-filter" data-status="pendente">Pendente</button>
-          <button class="chip-filter" data-status="aprovado">Aprovado</button>
-          <button class="chip-filter" data-status="recusado">Recusado</button>
+        <div style="margin-bottom:10px;">
+          <input class="input" id="orcamentos-busca" placeholder="Buscar por título ou cliente..." style="width:100%;" />
         </div>
-
         <div id="orcamentos-lista">${window.AppUtils.renderSkeletonCards(4)}</div>
       </section>
     `;
-
-    const filtroTarget = document.getElementById('orcamentos-filtro');
-    if (filtroTarget) {
-      filtroTarget.addEventListener('click', (event) => {
-        const button = event.target.closest('[data-status]');
-        if (!button) {
-          return;
-        }
-
-        state.filtroStatus = button.dataset.status;
-        atualizarFiltroVisual();
-        renderOrcamentosFiltrados();
-      });
-    }
 
     const buscaInput = document.getElementById('orcamentos-busca');
     if (buscaInput) {
       buscaInput.addEventListener('input', () => {
         state.termoBusca = buscaInput.value.toLowerCase().trim();
-        renderOrcamentosFiltrados();
-      });
-    }
-
-    const listTarget = document.getElementById('orcamentos-lista');
-    if (listTarget) {
-      listTarget.addEventListener('click', (event) => {
-        const card = event.target.closest('[data-orcamento-id]');
-        if (!card) {
-          return;
-        }
-        abrirDetalhesOrcamento(card.dataset.orcamentoId);
+        renderPastasClientes();
       });
     }
 
     try {
       await carregarOrcamentos(true);
       state.termoBusca = '';
-      renderOrcamentosFiltrados();
+      renderPastasClientes();
     } catch (error) {
-      if (listTarget) {
-        listTarget.innerHTML = `
-          <div class="empty-state">
-            Não foi possível carregar os orçamentos agora.
-          </div>
-        `;
-      }
+      const listTarget = document.getElementById('orcamentos-lista');
+      if (listTarget) listTarget.innerHTML = `<div class="empty-state">Não foi possível carregar os orçamentos agora.</div>`;
       window.AppUtils.showToast(error.message || 'Erro ao listar orçamentos.', 'error');
     }
+  }
+
+  function renderPastasClientes() {
+    const listTarget = document.getElementById('orcamentos-lista');
+    if (!listTarget) return;
+
+    let orcamentos = state.orcamentos;
+
+    if (state.termoBusca) {
+      orcamentos = orcamentos.filter(item => {
+        const titulo = (item.titulo || '').toLowerCase();
+        const cliente = getClienteNome(item).toLowerCase();
+        return titulo.includes(state.termoBusca) || cliente.includes(state.termoBusca);
+      });
+    }
+
+    if (!orcamentos.length) {
+      listTarget.innerHTML = `<div class="empty-state">Nenhum orçamento encontrado.</div>`;
+      return;
+    }
+
+    // Agrupa por cliente
+    const pastas = {};
+    orcamentos.forEach(orc => {
+      const nome = getClienteNome(orc);
+      if (!pastas[nome]) pastas[nome] = { cliente_id: orc.cliente_id, orcamentos: [] };
+      pastas[nome].orcamentos.push(orc);
+    });
+
+    const html = Object.entries(pastas).map(([nome, pasta]) => {
+      const total = pasta.orcamentos.reduce((acc, o) => acc + parseNumber(o.total), 0);
+      const pendentes = pasta.orcamentos.filter(o => o.status === 'pendente').length;
+      const aprovados = pasta.orcamentos.filter(o => o.status === 'aprovado').length;
+      return `
+        <div class="pasta-cliente" data-pasta="${window.AppUtils.escapeHtml(nome)}" style="cursor:pointer;">
+          <div class="card" style="display:grid;gap:6px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <div>
+                  <h3 class="orcamento-title">${window.AppUtils.escapeHtml(nome)}</h3>
+                  <p class="orcamento-sub">${pasta.orcamentos.length} orçamento${pasta.orcamentos.length > 1 ? 's' : ''}</p>
+                </div>
+              </div>
+              <span class="orcamento-total">${window.AppUtils.formatCurrencyBRL(total)}</span>
+            </div>
+            <div style="display:flex;gap:6px;">
+              ${pendentes ? `<span class="status-badge" data-status="pendente">${pendentes} pendente${pendentes > 1 ? 's' : ''}</span>` : ''}
+              ${aprovados ? `<span class="status-badge" data-status="aprovado">${aprovados} aprovado${aprovados > 1 ? 's' : ''}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    listTarget.innerHTML = `<div class="list-stack">${html}</div>`;
+
+    listTarget.querySelectorAll('.pasta-cliente').forEach(pasta => {
+      pasta.addEventListener('click', () => {
+        const nome = pasta.dataset.pasta;
+        abrirPastaCliente(nome, pastas[nome].orcamentos);
+      });
+    });
+  }
+
+  function abrirPastaCliente(nomeCliente, orcamentos) {
+    const container = document.getElementById('view-container');
+    if (!container) return;
+
+    container.innerHTML = `
+      <section class="view-section">
+        <div class="section-header">
+          <button class="btn btn-ghost btn-small" id="btn-voltar-pastas">← Voltar</button>
+          <h2 class="section-title" style="font-size:0.9rem;">${window.AppUtils.escapeHtml(nomeCliente)}</h2>
+        </div>
+        <div class="filter-row" id="pasta-filtro" style="margin-bottom:10px;">
+          <button class="chip-filter active" data-status="todos">Todos</button>
+          <button class="chip-filter" data-status="pendente">Pendente</button>
+          <button class="chip-filter" data-status="aprovado">Aprovado</button>
+          <button class="chip-filter" data-status="recusado">Recusado</button>
+        </div>
+        <div id="pasta-lista" class="list-stack"></div>
+      </section>
+    `;
+
+    document.getElementById('btn-voltar-pastas')?.addEventListener('click', () => renderListaOrcamentos());
+
+    let filtroAtivo = 'todos';
+
+    function renderOrcsPasta() {
+      const lista = document.getElementById('pasta-lista');
+      if (!lista) return;
+      const filtrados = filtroAtivo === 'todos' ? orcamentos : orcamentos.filter(o => o.status === filtroAtivo);
+      if (!filtrados.length) {
+        lista.innerHTML = `<div class="empty-state">Nenhum orçamento com este filtro.</div>`;
+        return;
+      }
+      lista.innerHTML = filtrados.map(orc => {
+        const numero = orc.numero ? `OMI-${new Date(orc.criado_em).getFullYear()}-${String(orc.numero).padStart(4,'0')}` : '';
+        const isCopia = orc.is_copia;
+        return `
+          <article class="card card-clickable" data-orcamento-id="${orc.id}" style="display:grid;gap:8px;">
+            <div class="orcamento-head">
+              <div>
+                ${numero ? `<p style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--accent);margin-bottom:3px;">${numero}</p>` : ''}
+                ${isCopia ? `<span style="font-size:0.68rem;background:rgba(200,169,110,0.15);color:var(--accent);padding:2px 8px;border-radius:10px;border:1px solid rgba(200,169,110,0.3);">Versão anterior</span>` : ''}
+                <h3 class="orcamento-title">${window.AppUtils.escapeHtml(orc.titulo || 'Sem título')}</h3>
+                <p class="orcamento-sub">${window.AppUtils.escapeHtml(orc.local_data || '')}</p>
+              </div>
+              <span class="orcamento-total">${window.AppUtils.formatCurrencyBRL(orc.total || 0)}</span>
+            </div>
+            <div class="badge-row">
+              ${buildStatusBadge(orc.status || 'pendente')}
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      lista.querySelectorAll('[data-orcamento-id]').forEach(card => {
+        card.addEventListener('click', () => abrirDetalhesOrcamento(card.dataset.orcamentoId));
+      });
+    }
+
+    document.getElementById('pasta-filtro')?.addEventListener('click', e => {
+      const btn = e.target.closest('[data-status]');
+      if (!btn) return;
+      filtroAtivo = btn.dataset.status;
+      document.querySelectorAll('#pasta-filtro .chip-filter').forEach(b => b.classList.toggle('active', b.dataset.status === filtroAtivo));
+      renderOrcsPasta();
+    });
+
+    renderOrcsPasta();
   }
 
   function extractItens(orcamento) {
@@ -1100,9 +1193,34 @@ _Tel.: 99997-6648_
           itens
         };
 
-        const response = editingId
-          ? await window.OrcamentosAPI.editar(editingId, payload)
-          : await window.OrcamentosAPI.criar(payload);
+        let response;
+        if (editingId) {
+          // Pergunta se quer salvar cópia da versão anterior
+          const salvarCopia = await window.AppUtils.confirmAction(
+            'Deseja salvar uma cópia da versão anterior do orçamento?',
+            'Sim, salvar cópia'
+          );
+          if (salvarCopia) {
+            const original = state.orcamentos.find(o => o.id === editingId);
+            if (original) {
+              const copiaPayload = {
+                ...original,
+                is_copia: true,
+                orcamento_origem_id: editingId,
+                status: original.status
+              };
+              delete copiaPayload.id;
+              delete copiaPayload.criado_em;
+              delete copiaPayload.numero;
+              delete copiaPayload.clientes;
+              delete copiaPayload.itens_orcamento;
+              await window.OrcamentosAPI.criar(copiaPayload);
+            }
+          }
+          response = await window.OrcamentosAPI.editar(editingId, payload);
+        } else {
+          response = await window.OrcamentosAPI.criar(payload);
+        }
 
         if (response.error) {
           throw new Error(response.error);
