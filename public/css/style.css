@@ -1,3 +1,59 @@
+
+#splash-screen {
+  position: fixed;
+  inset: 0;
+  background: #0d0d0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  transition: opacity 0.5s ease;
+}
+
+#splash-screen.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.splash-logo {
+  width: 180px;
+  height: auto;
+  animation: splashPulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes splashPulse {
+  from { opacity: 0.7; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.splash-bar {
+  width: 160px;
+  height: 3px;
+  background: rgba(200, 169, 110, 0.2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.splash-progress {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  border-radius: 999px;
+  animation: splashLoad 1.8s ease forwards;
+}
+
+@keyframes splashLoad {
+  0% { width: 0%; }
+  60% { width: 75%; }
+  100% { width: 100%; }
+}
 :root {
   --bg: #0d0d0d;
   --surface: #161616;

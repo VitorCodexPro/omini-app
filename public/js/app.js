@@ -414,6 +414,15 @@
       }
     });
 
+    // Splash screen
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+      setTimeout(() => {
+        splash.classList.add('hide');
+        setTimeout(() => splash.remove(), 500);
+      }, 2000);
+    }
+
     renderCurrentRoute();
   }
 
