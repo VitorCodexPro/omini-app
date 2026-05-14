@@ -360,7 +360,7 @@
   }
 
   function setActiveNavigation(navKey) {
-    document.querySelectorAll('#bottom-nav .nav-item').forEach((item) => {
+    document.querySelectorAll('#side-menu .nav-item').forEach((item) => {
       if (item.dataset.nav === navKey) {
         item.classList.add('active');
       } else {
