@@ -336,12 +336,12 @@
       };
     }
 
-    if (route === '#/despesas') {
+    if (route === '#/caixa') {
       return {
-        key: '#/despesas',
-        title: 'Despesas',
-        navKey: '#/despesas',
-        handler: () => window.DespesasUI.renderDespesasView(),
+        key: '#/caixa',
+        title: 'Caixa',
+        navKey: '#/caixa',
+        handler: () => window.CaixaUI.renderCaixaView(),
         params: {}
       };
     }
