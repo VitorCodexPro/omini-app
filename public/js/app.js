@@ -336,6 +336,16 @@
       };
     }
 
+    if (route === '#/despesas') {
+      return {
+        key: '#/despesas',
+        title: 'Despesas',
+        navKey: '#/despesas',
+        handler: () => window.DespesasUI.renderDespesasView(),
+        params: {}
+      };
+    }
+
     if (route === '#/recibos') {
       return {
         key: '#/recibos',
