@@ -382,6 +382,9 @@
           <button class="btn btn-ghost btn-small" id="btn-voltar-pastas">← Voltar</button>
           <h2 class="section-title" style="font-size:0.9rem;">${window.AppUtils.escapeHtml(nomeCliente)}</h2>
         </div>
+        <div style="margin-bottom:10px;">
+          <button class="btn btn-primary btn-small" id="btn-baixar-todos" style="width:100%;">Baixar todos os orçamentos em PDF</button>
+        </div>
         <div class="filter-row" id="pasta-filtro" style="margin-bottom:10px;">
           <button class="chip-filter active" data-status="todos">Todos</button>
           <button class="chip-filter" data-status="pendente">Pendente</button>
@@ -393,6 +396,100 @@
     `;
 
     document.getElementById('btn-voltar-pastas')?.addEventListener('click', () => renderListaOrcamentos());
+
+    document.getElementById('btn-baixar-todos')?.addEventListener('click', async () => {
+      const btn = document.getElementById('btn-baixar-todos');
+      window.AppUtils.setButtonLoading(btn, true, 'Preparando PDFs...');
+      try {
+        // Busca detalhes completos de cada orçamento
+        const detalhados = [];
+        for (const orc of orcamentos) {
+          const res = await window.OrcamentosAPI.buscar(orc.id);
+          if (res.data) detalhados.push(normalizePreviewData(res.data));
+        }
+
+        if (!detalhados.length) {
+          window.AppUtils.showToast('Nenhum orçamento para baixar.', 'warning');
+          return;
+        }
+
+        // Busca logos em base64
+        let logoSrc = '/img/logo.png';
+        let logoWatermark = '/img/logo-transpa.png';
+        try {
+          const r = await fetch('/img/logo.png');
+          const b = await r.blob();
+          logoSrc = await new Promise(res => { const fr = new FileReader(); fr.onloadend = () => res(fr.result); fr.readAsDataURL(b); });
+        } catch(e) {}
+        try {
+          const r = await fetch('/img/logo-transpa.png');
+          const b = await r.blob();
+          logoWatermark = await new Promise(res => { const fr = new FileReader(); fr.onloadend = () => res(fr.result); fr.readAsDataURL(b); });
+        } catch(e) {}
+
+        // Gera HTML com todos os orçamentos separados por page-break
+        const paginas = detalhados.map((data, index) => {
+          const itensHtml = data.itens.map(item =>
+            `<div style="font-size:13px;text-transform:uppercase;margin-bottom:6px;">${item.descricao.toUpperCase()}</div>`
+          ).join('');
+
+          const numero = data.numero
+            ? `<p style="text-align:center;font-size:11px;color:#666;margin-bottom:16px;letter-spacing:1px;">Nº OMI-${new Date().getFullYear()}-${String(data.numero).padStart(4,'0')}</p>`
+            : '';
+
+          return `
+            <div class="doc" style="position:relative;background-image:url('${logoWatermark}');background-repeat:no-repeat;background-position:center center;background-size:70%;-webkit-print-color-adjust:exact;print-color-adjust:exact;${index > 0 ? 'page-break-before:always;' : ''}">
+              <div style="position:relative;">
+                <img src="${logoSrc}" style="height:100px;width:auto;margin-bottom:16px;display:block;" />
+                <h2 style="text-align:center;font-size:18px;letter-spacing:1px;margin-bottom:8px;">ORÇAMENTO</h2>
+                ${numero}
+                <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.titulo.toUpperCase()}</p>
+                <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.cliente_nome.toUpperCase()}</p>
+                <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.local_data.toUpperCase()}</p>
+                <p style="text-transform:uppercase;font-size:13px;margin-bottom:20px;font-weight:bold;">AC. ${(data.atencao || '').toUpperCase()}</p>
+                <div style="margin-bottom:20px;">${itensHtml}</div>
+                <div style="display:flex;justify-content:space-between;border-top:1px solid #444;border-bottom:1px solid #444;padding:10px 0;margin-bottom:18px;font-weight:bold;font-size:14px;">
+                  <span>TOTAL</span>
+                  <span>${window.AppUtils.formatCurrencyBRL(data.total)}</span>
+                </div>
+                <div style="font-size:12px;margin-bottom:24px;">
+                  <strong>FORMA DE PAGAMENTO:</strong><br>
+                  ${data.forma_pagamento}<br>
+                  ${data.validade}
+                </div>
+                <div style="border-top:1px solid #666;padding-top:12px;text-align:center;font-size:11px;line-height:1.6;text-transform:uppercase;">
+                  OMINI SISTEMAS INTEGRADOS<br>
+                  RUA AMARAJI, 372 - BAIRRO SÃO GABRIEL<br>
+                  BELO HORIZONTE - MG<br>
+                  TEL.: 99997-6648
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+
+        const janela = window.open('', '_blank');
+        janela.document.write(`<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>Orçamentos - ${nomeCliente}</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:white; font-family:Arial,sans-serif; }
+.doc { width:100%; max-width:794px; margin:0 auto; padding:42px 34px; color:#111; }
+@media print { body{margin:0;} @page{margin:10mm;size:A4;} }
+</style>
+</head><body>
+${paginas}
+<script>window.onload=function(){setTimeout(function(){window.print();},500);};<\/script>
+</body></html>`);
+        janela.document.close();
+        window.AppUtils.showToast('Na impressão: desmarque "Cabeçalhos e rodapés".', 'success');
+      } catch (err) {
+        window.AppUtils.showToast(err.message || 'Erro ao gerar PDFs.', 'error');
+      } finally {
+        window.AppUtils.setButtonLoading(btn, false);
+      }
+    });
 
     let filtroAtivo = 'todos';
 
