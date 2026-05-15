@@ -935,10 +935,16 @@ _Tel.: 99997-6648_
           <button class="btn btn-success btn-small" data-status-change="aprovado">Aprovado</button>
           <button class="btn btn-danger btn-small" data-status-change="recusado">Recusado</button>
         </div>
-        <button class="btn btn-small" data-status-change="pago" style="width:100%;margin-bottom:8px;background:rgba(92,184,92,0.15);color:#5cb85c;border:1.5px solid rgba(92,184,92,0.5);">
-          Marcar como Pago — adicionar ao Caixa
-        </button>
-        ${data.status === 'pago' ? `<button class="btn btn-ghost btn-small" id="btn-desfazer-pago" style="width:100%;margin-bottom:8px;">Desfazer Pagamento</button>` : ''}
+        ${data.status === 'pago'
+          ? `<div style="width:100%;margin-bottom:8px;padding:12px;background:rgba(92,184,92,0.12);border:1.5px solid rgba(92,184,92,0.4);border-radius:8px;text-align:center;">
+               <p style="color:#5cb85c;font-weight:600;font-size:0.9rem;">Valor Pago</p>
+               <p style="color:#5cb85c;font-family:IBM Plex Mono,monospace;font-size:1.1rem;font-weight:700;margin-top:4px;">${window.AppUtils.formatCurrencyBRL(data.total || 0)}</p>
+             </div>
+             <button class="btn btn-ghost btn-small" id="btn-desfazer-pago" style="width:100%;margin-bottom:8px;">Desfazer Pagamento</button>`
+          : `<button class="btn btn-small" data-status-change="pago" style="width:100%;margin-bottom:8px;background:rgba(92,184,92,0.15);color:#5cb85c;border:1.5px solid rgba(92,184,92,0.5);">
+               Marcar como Pago
+             </button>`
+        }
 
         <div class="btn-row">
           <button class="btn btn-secondary" id="btn-detalhe-editar">Editar</button>
