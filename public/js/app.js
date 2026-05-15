@@ -440,8 +440,8 @@
     if (splash) {
       setTimeout(() => {
         splash.classList.add('hide');
-        setTimeout(() => splash.remove(), 500);
-      }, 2000);
+        setTimeout(() => splash.remove(), 400);
+      }, 1200);
     }
 
     renderCurrentRoute();
