@@ -91,7 +91,7 @@
         <td style="padding:7px 4px;font-size:11px;">${formatarData(e.data_entrada)}</td>
         <td style="padding:7px 4px;font-size:11px;">${e.categoria_nome || 'Outros'}</td>
         <td style="padding:7px 4px;font-size:11px;">${e.descricao}</td>
-        <td style="padding:7px 4px;font-size:11px;text-align:right;color:#2a7a2a;font-weight:bold;">+ R$ ${parseFloat(e.valor).toFixed(2).replace('.',',')}</td>
+        <td style="padding:7px 4px;font-size:11px;text-align:right;color:#2a7a2a;font-weight:bold;">+ ${parseFloat(e.valor).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td>
       </tr>`).join('');
 
     const linhasDespesas = despesas.map(d => `
@@ -99,7 +99,7 @@
         <td style="padding:7px 4px;font-size:11px;">${formatarData(d.data_despesa)}</td>
         <td style="padding:7px 4px;font-size:11px;">${d.categoria_nome || 'Outros'}</td>
         <td style="padding:7px 4px;font-size:11px;">${d.descricao}</td>
-        <td style="padding:7px 4px;font-size:11px;text-align:right;color:#a32d2d;font-weight:bold;">- R$ ${parseFloat(d.valor).toFixed(2).replace('.',',')}</td>
+        <td style="padding:7px 4px;font-size:11px;text-align:right;color:#a32d2d;font-weight:bold;">- ${parseFloat(d.valor).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td>
       </tr>`).join('');
 
     const janela = window.open('', '_blank');
@@ -127,15 +127,15 @@ body { background:white; font-family:Arial,sans-serif; }
     <div class="resumo">
       <div class="resumo-card" style="background:#e8f5e9;">
         <p style="font-size:11px;color:#2a7a2a;margin-bottom:4px;">TOTAL ENTRADAS</p>
-        <p style="font-size:16px;font-weight:bold;color:#2a7a2a;">R$ ${totalEntradas.toFixed(2).replace('.',',')}</p>
+        <p style="font-size:16px;font-weight:bold;color:#2a7a2a;">${totalEntradas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</p>
       </div>
       <div class="resumo-card" style="background:#fce8e8;">
         <p style="font-size:11px;color:#a32d2d;margin-bottom:4px;">TOTAL DESPESAS</p>
-        <p style="font-size:16px;font-weight:bold;color:#a32d2d;">R$ ${totalDespesas.toFixed(2).replace('.',',')}</p>
+        <p style="font-size:16px;font-weight:bold;color:#a32d2d;">${totalDespesas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</p>
       </div>
       <div class="resumo-card" style="background:${saldo >= 0 ? '#e8f5e9' : '#fce8e8'};">
         <p style="font-size:11px;color:${saldo >= 0 ? '#2a7a2a' : '#a32d2d'};margin-bottom:4px;">SALDO</p>
-        <p style="font-size:16px;font-weight:bold;color:${saldo >= 0 ? '#2a7a2a' : '#a32d2d'};">R$ ${saldo.toFixed(2).replace('.',',')}</p>
+        <p style="font-size:16px;font-weight:bold;color:${saldo >= 0 ? '#2a7a2a' : '#a32d2d'};">${saldo.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</p>
       </div>
     </div>
 
@@ -166,7 +166,7 @@ body { background:white; font-family:Arial,sans-serif; }
     <div style="display:flex;justify-content:flex-end;border-top:2px solid #111;padding-top:12px;margin-top:20px;">
       <div style="text-align:right;">
         <p style="font-size:12px;color:#555;margin-bottom:4px;">Saldo Final</p>
-        <p style="font-size:22px;font-weight:bold;color:${saldo >= 0 ? '#2a7a2a' : '#a32d2d'};">R$ ${saldo.toFixed(2).replace('.',',')}</p>
+        <p style="font-size:22px;font-weight:bold;color:${saldo >= 0 ? '#2a7a2a' : '#a32d2d'};">${saldo.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</p>
       </div>
     </div>
 
