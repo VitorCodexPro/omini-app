@@ -11,13 +11,13 @@
       excluir: (id) => window.API.delete(`/api/despesas?tipo=categorias&id=${id}`)
     },
     entradas: {
-      listar: (params) => window.API.get('/api/despesas?tipo=entradas' + (params || '')),
+      listar: (params) => window.API.get('/api/despesas?tipo=entradas' + (params ? '&' + params.replace(/^&/, '') : '')),
       criar: (data) => window.API.post('/api/despesas?tipo=entradas', data),
       editar: (id, data) => window.API.put(`/api/despesas?tipo=entradas&id=${id}`, data),
       excluir: (id) => window.API.delete(`/api/despesas?tipo=entradas&id=${id}`)
     },
     despesas: {
-      listar: (params) => window.API.get('/api/despesas' + (params || '')),
+      listar: (params) => window.API.get('/api/despesas' + (params ? '?' + params.replace(/^&/, '') : '')),
       criar: (data) => window.API.post('/api/despesas', data),
       editar: (id, data) => window.API.put(`/api/despesas?id=${id}`, data),
       excluir: (id) => window.API.delete(`/api/despesas?id=${id}`)
@@ -345,8 +345,8 @@ body { background:white; font-family:Arial,sans-serif; }
 
     async function carregarMovimentos(periodo) {
       let params = '';
-      if (periodoAtivo === 'semana') params = `&semana=${periodo}`;
-      else { const [mes, ano] = periodo.split('-'); params = `&mes=${mes}&ano=${ano}`; }
+      if (periodoAtivo === 'semana') params = `semana=${periodo}`;
+      else { const [mes, ano] = periodo.split('-'); params = `mes=${mes}&ano=${ano}`; }
 
       const [resE, resD] = await Promise.all([
         API.entradas.listar(params),
