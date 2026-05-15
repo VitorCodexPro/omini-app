@@ -769,10 +769,36 @@ _Tel.: 99997-6648_
     window.AppUtils.setButtonLoading(triggerButton, true, 'Atualizando...');
 
     try {
-      const response = await window.OrcamentosAPI.atualizarStatus(id, status);
-      if (response.error) {
-        throw new Error(response.error);
+      const orcamento = state.detalhesCache[id] || state.orcamentos.find(o => o.id === id);
+
+      // Se marcando como pago, cria entrada no caixa
+      if (status === 'pago' && orcamento) {
+        const dataHoje = new Date();
+        const dataStr = `${dataHoje.getFullYear()}-${String(dataHoje.getMonth()+1).padStart(2,'0')}-${String(dataHoje.getDate()).padStart(2,'0')}`;
+        const entradaPayload = {
+          categoria_nome: 'Orçamento pago',
+          descricao: orcamento.titulo || 'Orçamento',
+          valor: orcamento.total || 0,
+          data_entrada: dataStr,
+          orcamento_id: id
+        };
+        const resEntrada = await window.API.post('/api/despesas?tipo=entradas', entradaPayload);
+        if (resEntrada.error) throw new Error('Erro ao registrar no caixa: ' + resEntrada.error);
       }
+
+      // Se desfazendo pagamento, remove entrada do caixa
+      if (orcamento?.status === 'pago' && status !== 'pago') {
+        // Busca entrada vinculada e remove
+        const resEntradas = await window.API.get('/api/despesas?tipo=entradas');
+        const entradas = resEntradas.data || [];
+        const entradaVinculada = entradas.find(e => e.orcamento_id === id);
+        if (entradaVinculada) {
+          await window.API.delete(`/api/despesas?tipo=entradas&id=${entradaVinculada.id}`);
+        }
+      }
+
+      const response = await window.OrcamentosAPI.atualizarStatus(id, status);
+      if (response.error) throw new Error(response.error);
 
       state.orcamentos = state.orcamentos.map((item) =>
         item.id === id ? { ...item, status } : item
@@ -782,7 +808,7 @@ _Tel.: 99997-6648_
         state.detalhesCache[id].status = status;
       }
 
-      window.AppUtils.showToast('Status atualizado com sucesso.', 'success');
+      window.AppUtils.showToast(status === 'pago' ? 'Pagamento registrado no Caixa!' : 'Status atualizado!', 'success');
       window.AppUtils.closeModal();
       await window.AppRouter.renderCurrentRoute();
     } catch (error) {
@@ -909,6 +935,10 @@ _Tel.: 99997-6648_
           <button class="btn btn-success btn-small" data-status-change="aprovado">Aprovado</button>
           <button class="btn btn-danger btn-small" data-status-change="recusado">Recusado</button>
         </div>
+        <button class="btn btn-small" data-status-change="pago" style="width:100%;margin-bottom:8px;background:rgba(92,184,92,0.15);color:#5cb85c;border:1.5px solid rgba(92,184,92,0.5);">
+          Marcar como Pago — adicionar ao Caixa
+        </button>
+        ${data.status === 'pago' ? `<button class="btn btn-ghost btn-small" id="btn-desfazer-pago" style="width:100%;margin-bottom:8px;">Desfazer Pagamento</button>` : ''}
 
         <div class="btn-row">
           <button class="btn btn-secondary" id="btn-detalhe-editar">Editar</button>
@@ -944,6 +974,12 @@ _Tel.: 99997-6648_
         button.addEventListener('click', () => {
           alterarStatusOrcamento(id, button.dataset.statusChange, button);
         });
+      });
+
+      document.getElementById('btn-desfazer-pago')?.addEventListener('click', async (e) => {
+        const ok = await window.AppUtils.confirmAction('Desfazer pagamento? A entrada será removida do Caixa.', 'Confirmar');
+        if (!ok) return;
+        alterarStatusOrcamento(id, 'pendente', e.target);
       });
     } catch (error) {
       window.AppUtils.showToast(error.message || 'Erro ao abrir detalhes do orçamento.', 'error');

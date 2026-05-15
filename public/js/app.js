@@ -14,7 +14,8 @@
   const statusMeta = {
     pendente: { label: 'Pendente', color: 'warning' },
     aprovado: { label: 'Aprovado', color: 'success' },
-    recusado: { label: 'Recusado', color: 'danger' }
+    recusado: { label: 'Recusado', color: 'danger' },
+    pago: { label: 'Pago', color: 'aprovado' }
   };
 
   const AppState = {
