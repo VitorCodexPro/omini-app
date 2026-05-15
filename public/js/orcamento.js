@@ -810,6 +810,8 @@ _Tel.: 99997-6648_
 
       window.AppUtils.showToast(status === 'pago' ? 'Pagamento registrado no Caixa!' : 'Status atualizado!', 'success');
       window.AppUtils.closeModal();
+      // Limpa cache para forçar recarregar
+      delete state.detalhesCache[id];
       await window.AppRouter.renderCurrentRoute();
     } catch (error) {
       window.AppUtils.showToast(error.message || 'Erro ao atualizar status.', 'error');
