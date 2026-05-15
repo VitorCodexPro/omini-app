@@ -191,7 +191,7 @@ body { background:white; font-family:Arial,sans-serif; }
 
     window.AppUtils.showModal(`
       <div class="modal-header">
-        <h3 class="modal-title" style="color:${isEntrada ? 'var(--success)' : 'var(--danger)'};">
+        <h3 class="modal-title">
           ${isEdit ? 'Editar' : 'Nova'} ${isEntrada ? 'Entrada' : 'Despesa'}
         </h3>
         <button class="btn btn-ghost btn-small" data-close>Fechar</button>
@@ -251,15 +251,15 @@ body { background:white; font-family:Arial,sans-serif; }
     const isEntrada = tipo === 'entrada';
     const data = isEntrada ? item.data_entrada : item.data_despesa;
     return `
-      <article class="card card-clickable" data-mov-id="${item.id}" data-mov-tipo="${tipo}" style="display:grid;gap:6px;">
+      <article class="card card-clickable" data-mov-id="${item.id}" data-mov-tipo="${tipo}" style="display:grid;gap:6px;border-left:3px solid ${isEntrada ? 'var(--accent)' : 'var(--border)'};">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
           <div>
-            <p style="font-size:0.7rem;font-weight:600;margin-bottom:2px;color:${isEntrada ? 'var(--success)' : 'var(--danger)'};">
-              ${isEntrada ? '▲' : '▼'} ${window.AppUtils.escapeHtml(item.categoria_nome || 'Outros')}
+            <p style="font-size:0.7rem;font-weight:600;margin-bottom:2px;color:var(--accent);">
+              ${isEntrada ? '+ Entrada' : '- Saída'} · ${window.AppUtils.escapeHtml(item.categoria_nome || 'Outros')}
             </p>
             <h3 class="orcamento-title" style="font-size:0.88rem;">${window.AppUtils.escapeHtml(item.descricao)}</h3>
           </div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:0.92rem;color:${isEntrada ? 'var(--success)' : 'var(--danger)'};">
+          <span style="font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:0.92rem;color:${isEntrada ? 'var(--accent2)' : 'var(--muted)'};">
             ${isEntrada ? '+' : '-'} ${window.AppUtils.formatCurrencyBRL(item.valor)}
           </span>
         </div>
@@ -317,8 +317,8 @@ body { background:white; font-family:Arial,sans-serif; }
         </div>
 
         <div style="display:flex;gap:8px;margin-bottom:12px;">
-          <button class="btn btn-primary btn-small" id="btn-nova-entrada" style="flex:1;background:rgba(92,184,92,0.2);color:var(--success);border-color:rgba(92,184,92,0.45);">+ Entrada</button>
-          <button class="btn btn-danger btn-small" id="btn-nova-despesa" style="flex:1;">+ Despesa</button>
+          <button class="btn btn-primary btn-small" id="btn-nova-entrada" style="flex:1;">+ Entrada</button>
+          <button class="btn btn-secondary btn-small" id="btn-nova-despesa" style="flex:1;">+ Despesa</button>
         </div>
 
         <div id="caixa-lista">${window.AppUtils.renderSkeletonCards(3)}</div>
@@ -364,17 +364,17 @@ body { background:white; font-family:Arial,sans-serif; }
       if (resumo) {
         resumo.innerHTML = `
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
-            <div class="summary-card" style="border-left:3px solid var(--success);">
+            <div class="summary-card" style="border-left:3px solid var(--accent);">
               <p class="summary-label">Entradas</p>
-              <p class="summary-value" style="color:var(--success);font-size:0.9rem;">${window.AppUtils.formatCurrencyBRL(totalEnt)}</p>
+              <p class="summary-value" style="font-size:0.9rem;">${window.AppUtils.formatCurrencyBRL(totalEnt)}</p>
             </div>
-            <div class="summary-card" style="border-left:3px solid var(--danger);">
+            <div class="summary-card" style="border-left:3px solid var(--muted);">
               <p class="summary-label">Despesas</p>
-              <p class="summary-value" style="color:var(--danger);font-size:0.9rem;">${window.AppUtils.formatCurrencyBRL(totalDes)}</p>
+              <p class="summary-value" style="font-size:0.9rem;">${window.AppUtils.formatCurrencyBRL(totalDes)}</p>
             </div>
-            <div class="summary-card" style="border-left:3px solid ${saldo >= 0 ? 'var(--success)' : 'var(--danger)'};">
+            <div class="summary-card" style="border-left:3px solid var(--accent2);">
               <p class="summary-label">Saldo</p>
-              <p class="summary-value" style="color:${saldo >= 0 ? 'var(--success)' : 'var(--danger)'};font-size:0.9rem;">${window.AppUtils.formatCurrencyBRL(saldo)}</p>
+              <p class="summary-value" style="color:var(--accent2);font-size:0.9rem;">${window.AppUtils.formatCurrencyBRL(saldo)}</p>
             </div>
           </div>
         `;
@@ -427,7 +427,7 @@ body { background:white; font-family:Arial,sans-serif; }
               <div class="detail-grid" style="margin-bottom:14px;">
                 <div class="detail-row"><strong>Categoria</strong><span>${window.AppUtils.escapeHtml(item.categoria_nome || 'Outros')}</span></div>
                 <div class="detail-row"><strong>Descrição</strong><span>${window.AppUtils.escapeHtml(item.descricao)}</span></div>
-                <div class="detail-row"><strong>Valor</strong><span style="color:${isEntrada ? 'var(--success)' : 'var(--danger)'};font-weight:bold;">${isEntrada ? '+' : '-'} ${window.AppUtils.formatCurrencyBRL(item.valor)}</span></div>
+                <div class="detail-row"><strong>Valor</strong><span style="color:var(--accent2);font-weight:bold;">${isEntrada ? '+' : '-'} ${window.AppUtils.formatCurrencyBRL(item.valor)}</span></div>
                 <div class="detail-row"><strong>Data</strong><span>${formatarData(data)}</span></div>
               </div>
               <div class="btn-row">
