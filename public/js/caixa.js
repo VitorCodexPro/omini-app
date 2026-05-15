@@ -350,7 +350,7 @@ body { background:white; font-family:Arial,sans-serif; }
 
       const [resE, resD] = await Promise.all([
         API.entradas.listar(params),
-        API.despesas.listar(params.replace('tipo=entradas&', ''))
+        API.despesas.listar(params)
       ]);
 
       const entradas = resE.data || [];
