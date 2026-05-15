@@ -307,7 +307,13 @@
     const listTarget = document.getElementById('orcamentos-lista');
     if (!listTarget) return;
 
-    let orcamentos = state.orcamentos;
+    const agora = new Date();
+    const quinzeDias = 15 * 24 * 60 * 60 * 1000;
+    let orcamentos = state.orcamentos.filter(o => {
+      if (o.status === 'pago') return false;
+      if (o.status === 'pendente' && (agora - new Date(o.criado_em)) > quinzeDias) return false;
+      return true;
+    });
 
     if (state.termoBusca) {
       orcamentos = orcamentos.filter(item => {
@@ -1486,10 +1492,151 @@ _Tel.: 99997-6648_
     }
   }
 
+  async function renderOrcamentosPagos() {
+    const container = document.getElementById('view-container');
+    if (!container) return;
+
+    container.innerHTML = `
+      <section class="view-section">
+        <div class="section-header">
+          <h2 class="section-title">Orçamentos Pagos</h2>
+        </div>
+        <div id="pagos-lista">${window.AppUtils.renderSkeletonCards(3)}</div>
+      </section>
+    `;
+
+    try {
+      await carregarOrcamentos(true);
+      const pagos = state.orcamentos.filter(o => o.status === 'pago');
+      const lista = document.getElementById('pagos-lista');
+      if (!lista) return;
+
+      if (!pagos.length) {
+        lista.innerHTML = `<div class="empty-state">Nenhum orçamento pago ainda.</div>`;
+        return;
+      }
+
+      // Agrupa por cliente
+      const pastas = {};
+      pagos.forEach(orc => {
+        const nome = getClienteNome(orc);
+        if (!pastas[nome]) pastas[nome] = [];
+        pastas[nome].push(orc);
+      });
+
+      lista.innerHTML = `<div class="list-stack">${Object.entries(pastas).map(([nome, orcs]) => {
+        const total = orcs.reduce((acc, o) => acc + parseNumber(o.total), 0);
+        return `
+          <div class="pasta-pago" data-pasta="${window.AppUtils.escapeHtml(nome)}" style="cursor:pointer;">
+            <div class="card" style="display:grid;gap:6px;border-left:3px solid var(--success);">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <div>
+                    <h3 class="orcamento-title">${window.AppUtils.escapeHtml(nome)}</h3>
+                    <p class="orcamento-sub">${orcs.length} orçamento${orcs.length > 1 ? 's' : ''} pago${orcs.length > 1 ? 's' : ''}</p>
+                  </div>
+                </div>
+                <span class="orcamento-total" style="color:var(--success);">${window.AppUtils.formatCurrencyBRL(total)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('')}</div>`;
+
+      lista.querySelectorAll('.pasta-pago').forEach(pasta => {
+        pasta.addEventListener('click', () => {
+          const nome = pasta.dataset.pasta;
+          abrirPastaCliente(nome, pastas[nome]);
+        });
+      });
+    } catch (error) {
+      document.getElementById('pagos-lista').innerHTML = `<div class="empty-state">Erro ao carregar.</div>`;
+    }
+  }
+
+  async function renderOrcamentosArquivados() {
+    const container = document.getElementById('view-container');
+    if (!container) return;
+
+    container.innerHTML = `
+      <section class="view-section">
+        <div class="section-header">
+          <h2 class="section-title">Orçamentos Arquivados</h2>
+        </div>
+        <div id="arquivados-lista">${window.AppUtils.renderSkeletonCards(3)}</div>
+      </section>
+    `;
+
+    try {
+      await carregarOrcamentos(true);
+      const agora = new Date();
+      const quinzeDias = 15 * 24 * 60 * 60 * 1000;
+
+      const arquivados = state.orcamentos.filter(o => {
+        if (o.status !== 'pendente') return false;
+        const criado = new Date(o.criado_em);
+        return (agora - criado) > quinzeDias;
+      });
+
+      const lista = document.getElementById('arquivados-lista');
+      if (!lista) return;
+
+      if (!arquivados.length) {
+        lista.innerHTML = `<div class="empty-state">Nenhum orçamento arquivado.</div>`;
+        return;
+      }
+
+      lista.innerHTML = `<div class="list-stack">${arquivados.map(orc => {
+        const numero = orc.numero ? `OMI-${new Date(orc.criado_em).getFullYear()}-${String(orc.numero).padStart(4,'0')}` : '';
+        const clienteNome = getClienteNome(orc);
+        const diasPassados = Math.floor((agora - new Date(orc.criado_em)) / (24 * 60 * 60 * 1000));
+        return `
+          <article class="card" style="display:grid;gap:8px;opacity:0.8;">
+            <div class="orcamento-head">
+              <div>
+                ${numero ? `<p style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--muted);margin-bottom:3px;">${numero}</p>` : ''}
+                <h3 class="orcamento-title">${window.AppUtils.escapeHtml(orc.titulo || 'Sem título')}</h3>
+                <p class="orcamento-sub">${window.AppUtils.escapeHtml(clienteNome)}</p>
+              </div>
+              <span class="orcamento-total">${window.AppUtils.formatCurrencyBRL(orc.total || 0)}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:0.72rem;color:var(--danger);">Vencido há ${diasPassados} dias</span>
+              <button class="btn btn-secondary btn-small btn-restaurar" data-restaurar-id="${orc.id}" style="min-height:34px;">Restaurar</button>
+            </div>
+          </article>
+        `;
+      }).join('')}</div>`;
+
+      lista.querySelectorAll('.btn-restaurar').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const id = btn.dataset.restaurarId;
+          window.AppUtils.setButtonLoading(btn, true, 'Restaurando...');
+          try {
+            const res = await window.OrcamentosAPI.atualizarStatus(id, 'pendente');
+            if (res.error) throw new Error(res.error);
+            window.AppUtils.showToast('Orçamento restaurado!', 'success');
+            await renderOrcamentosArquivados();
+          } catch (err) {
+            window.AppUtils.showToast(err.message || 'Erro ao restaurar.', 'error');
+          } finally {
+            window.AppUtils.setButtonLoading(btn, false);
+          }
+        });
+      });
+    } catch (error) {
+      document.getElementById('arquivados-lista').innerHTML = `<div class="empty-state">Erro ao carregar.</div>`;
+    }
+  }
+
   window.OrcamentoUI = {
     renderDashboard,
     renderListaOrcamentos,
     renderFormOrcamento,
-    abrirPreviewOrcamento
+    abrirPreviewOrcamento,
+    renderOrcamentosPagos,
+    renderOrcamentosArquivados
   };
 })();

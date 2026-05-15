@@ -337,6 +337,26 @@
       };
     }
 
+    if (route === '#/pagos') {
+      return {
+        key: '#/pagos',
+        title: 'Orçamentos Pagos',
+        navKey: '#/pagos',
+        handler: () => window.OrcamentoUI.renderOrcamentosPagos(),
+        params: {}
+      };
+    }
+
+    if (route === '#/arquivados') {
+      return {
+        key: '#/arquivados',
+        title: 'Orçamentos Arquivados',
+        navKey: '#/arquivados',
+        handler: () => window.OrcamentoUI.renderOrcamentosArquivados(),
+        params: {}
+      };
+    }
+
     if (route === '#/caixa') {
       return {
         key: '#/caixa',
