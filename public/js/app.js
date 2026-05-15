@@ -398,6 +398,15 @@
       return;
     }
 
+    // Protege rotas restritas para funcionarios
+    const user = typeof getUsuario === 'function' ? getUsuario() : null;
+    const rotasRestritas = ['#/caixa', '#/pagos'];
+    if (user && user.perfil === 'funcionario' && rotasRestritas.includes(routeMatch.key)) {
+      showToast('Acesso restrito.', 'warning');
+      window.location.hash = '#/';
+      return;
+    }
+
     AppState.currentRoute = routeMatch.key;
     setScreenTitle(routeMatch.title);
     setActiveNavigation(routeMatch.navKey);

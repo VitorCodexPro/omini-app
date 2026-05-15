@@ -26,7 +26,29 @@
   </div>
 </div>
 
-<div id="app">
+<div id="login-screen" style="display:none;">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0d0d0d;padding:20px;">
+    <div style="width:100%;max-width:360px;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <img src="/img/logo.png" alt="OMINI" style="height:100px;width:auto;margin-bottom:16px;" />
+      </div>
+      <form id="login-form" style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <label style="font-family:Rajdhani,sans-serif;font-size:0.84rem;color:#888;text-transform:uppercase;letter-spacing:1px;">Login</label>
+          <input class="input" id="login-user" placeholder="Digite seu login" required style="background:#1f1f1f;border:1px solid #2a2a2a;color:#f0ede8;padding:12px;border-radius:8px;font-size:15px;" />
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <label style="font-family:Rajdhani,sans-serif;font-size:0.84rem;color:#888;text-transform:uppercase;letter-spacing:1px;">Senha</label>
+          <input class="input" id="login-pass" type="password" placeholder="Digite sua senha" required style="background:#1f1f1f;border:1px solid #2a2a2a;color:#f0ede8;padding:12px;border-radius:8px;font-size:15px;" />
+        </div>
+        <button type="submit" id="btn-login" style="margin-top:8px;min-height:48px;border-radius:8px;border:none;background:linear-gradient(180deg,#e8c98a,#c8a96e);color:#1c1408;font-family:Rajdhani,sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;cursor:pointer;">ENTRAR</button>
+        <p id="login-erro" style="color:#e05c5c;font-size:0.82rem;text-align:center;display:none;"></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
       <header id="main-header">
         <button class="btn-hamburger" onclick="abrirMenu()" aria-label="Abrir menu">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -89,6 +111,16 @@
             <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
             <span class="nav-label">Caixa</span>
           </a>
+        <div style="border-top:1px solid #2a2a2a;margin-top:auto;padding:10px 0;">
+          <a href="#" class="nav-item" id="btn-alterar-senha" onclick="event.preventDefault();fecharMenu();abrirAlterarSenha();">
+            <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <span class="nav-label">Alterar Senha</span>
+          </a>
+          <a href="#" class="nav-item" id="btn-sair" onclick="event.preventDefault();fecharMenu();fazerLogout();" style="color:var(--danger);">
+            <span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+            <span class="nav-label">Sair</span>
+          </a>
+        </div>
         </div>
       </nav>
     </div>
@@ -104,6 +136,128 @@
     }
   </script>
   <script>
+    function getUsuario() {
+      try { return JSON.parse(sessionStorage.getItem('omini_user')); } catch { return null; }
+    }
+
+    function fazerLogout() {
+      sessionStorage.removeItem('omini_user');
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'block';
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+    }
+
+    function aplicarPermissoes() {
+      const user = getUsuario();
+      if (!user) return;
+      const isFuncionario = user.perfil === 'funcionario';
+      const itensRestritos = ['#/caixa', '#/pagos'];
+      document.querySelectorAll('#side-menu .nav-item[data-nav]').forEach(item => {
+        if (isFuncionario && itensRestritos.includes(item.dataset.nav)) {
+          item.style.display = 'none';
+        } else {
+          item.style.display = '';
+        }
+      });
+      const btnSenha = document.getElementById('btn-alterar-senha');
+      if (btnSenha) btnSenha.style.display = '';
+    }
+
+    async function abrirAlterarSenha() {
+      const user = getUsuario();
+      if (!user) return;
+      window.AppUtils.showModal(`
+        <div class="modal-header">
+          <h3 class="modal-title">Alterar Senha</h3>
+          <button class="btn btn-ghost btn-small" data-close>Fechar</button>
+        </div>
+        <form id="form-alterar-senha" style="display:flex;flex-direction:column;gap:12px;">
+          <div class="form-group">
+            <label>Senha atual</label>
+            <input type="password" class="input" id="senha-atual" required />
+          </div>
+          <div class="form-group">
+            <label>Nova senha</label>
+            <input type="password" class="input" id="senha-nova" required />
+          </div>
+          <div class="form-group">
+            <label>Confirmar nova senha</label>
+            <input type="password" class="input" id="senha-confirma" required />
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-ghost" data-close>Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="btn-salvar-senha">Salvar</button>
+          </div>
+        </form>
+      `);
+      document.getElementById('form-alterar-senha').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const atual = document.getElementById('senha-atual').value;
+        const nova = document.getElementById('senha-nova').value;
+        const confirma = document.getElementById('senha-confirma').value;
+        if (nova !== confirma) { window.AppUtils.showToast('Senhas não coincidem.', 'error'); return; }
+        if (nova.length < 4) { window.AppUtils.showToast('Senha deve ter no mínimo 4 caracteres.', 'error'); return; }
+        const btn = document.getElementById('btn-salvar-senha');
+        btn.disabled = true; btn.textContent = 'Salvando...';
+        try {
+          const res = await window.API.put('/api/auth', { id: user.id, senha_atual: atual, senha_nova: nova });
+          if (res.error) throw new Error(res.error);
+          window.AppUtils.showToast('Senha alterada com sucesso!', 'success');
+          window.AppUtils.closeModal();
+        } catch (err) {
+          window.AppUtils.showToast(err.message || 'Erro ao alterar senha.', 'error');
+        } finally {
+          btn.disabled = false; btn.textContent = 'Salvar';
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = getUsuario();
+      if (user) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = '';
+        setTimeout(aplicarPermissoes, 100);
+      } else {
+        document.getElementById('login-screen').style.display = 'block';
+        document.getElementById('app').style.display = 'none';
+      }
+
+      document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const login = document.getElementById('login-user').value.trim();
+        const senha = document.getElementById('login-pass').value.trim();
+        const erro = document.getElementById('login-erro');
+        const btn = document.getElementById('btn-login');
+        erro.style.display = 'none';
+        btn.disabled = true; btn.textContent = 'ENTRANDO...';
+        try {
+          const res = await fetch(window.location.origin + '/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ login, senha })
+          });
+          const json = await res.json();
+          if (json.error || !json.data) {
+            erro.textContent = json.error || 'Login ou senha incorretos.';
+            erro.style.display = 'block';
+            return;
+          }
+          sessionStorage.setItem('omini_user', JSON.stringify(json.data));
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('app').style.display = '';
+          setTimeout(aplicarPermissoes, 100);
+          if (window.AppRouter) window.AppRouter.renderCurrentRoute();
+        } catch (err) {
+          erro.textContent = 'Erro de conexão.';
+          erro.style.display = 'block';
+        } finally {
+          btn.disabled = false; btn.textContent = 'ENTRAR';
+        }
+      });
+    });
+
     function abrirMenu() {
       document.getElementById('side-menu').classList.add('open');
       document.getElementById('menu-overlay').classList.add('open');
