@@ -1,6 +1,6 @@
 const supabase = require('./_supabase');
 
-const STATUS_VALIDOS = ['pendente', 'aprovado', 'recusado'];
+const STATUS_VALIDOS = ['pendente', 'aprovado', 'recusado', 'pago'];
 const FORMA_PAGAMENTO_PADRAO = 'À VISTA NA ENTREGA DO SERVIÇO.';
 const VALIDADE_PADRAO = 'ORÇAMENTO VÁLIDO POR 15 DIAS.';
 
