@@ -429,9 +429,7 @@
 
         // Gera HTML com todos os orçamentos separados por page-break
         const paginas = detalhados.map((data, index) => {
-          const itensHtml = data.itens.map(item =>
-            `<div style="font-size:13px;text-transform:uppercase;margin-bottom:6px;">${item.descricao.toUpperCase()}</div>`
-          ).join('');
+          const itensHtml = data.itens.length ? formatarItensParaPDF(data.itens) : '<p>SEM ITENS</p>';
 
           const numero = data.numero
             ? `<p style="text-align:center;font-size:11px;color:#666;margin-bottom:16px;letter-spacing:1px;">Nº OMI-${new Date().getFullYear()}-${String(data.numero).padStart(4,'0')}</p>`
@@ -573,15 +571,7 @@ ${paginas}
 
   function previewDocumentMarkup(data) {
     const itensMarkup = data.itens.length
-      ? data.itens
-          .map(
-            (item) => `
-            <div class="doc-item">
-              <span>${window.AppUtils.escapeHtml(item.descricao.toUpperCase())}</span>
-            </div>
-          `
-          )
-          .join('')
+      ? formatarItensParaPreview(data.itens)
       : '<p class="doc-line">SEM ITENS INFORMADOS</p>';
 
     return `
@@ -632,6 +622,74 @@ ${paginas}
     `;
   }
 
+  function formatarItensParaPDF(itens) {
+    // Agrupa linhas: se começa com número = item novo, senão = complemento do anterior
+    const blocos = [];
+    itens.forEach(item => {
+      const linha = (item.descricao || '').trim();
+      if (!linha) return;
+      const match = linha.match(/^(\d{1,3})\s+(.+)/);
+      if (match) {
+        blocos.push({ qtd: match[1].padStart(2, '0'), descricao: match[2], complementos: [] });
+      } else if (blocos.length) {
+        blocos[blocos.length - 1].complementos.push(linha);
+      } else {
+        blocos.push({ qtd: '', descricao: linha, complementos: [] });
+      }
+    });
+
+    return blocos.map(bloco => {
+      const complementosHtml = bloco.complementos.map(c => {
+        const isValor = /r\$|valor|\d+[.,]\d{2}/i.test(c);
+        if (isValor) {
+          return `<p style="padding-left:40px;font-size:11px;color:#666;margin-top:3px;font-style:italic;">${c.toUpperCase()}</p>`;
+        }
+        return `<p style="padding-left:40px;font-size:12px;color:#444;margin-top:2px;">${c.toUpperCase()}</p>`;
+      }).join('');
+
+      return `
+        <div style="padding:7px 0;border-bottom:1px solid #eee;">
+          <div style="display:flex;gap:12px;font-size:13px;text-transform:uppercase;">
+            <span style="min-width:28px;font-weight:bold;color:#555;">${bloco.qtd}</span>
+            <span>${bloco.descricao.toUpperCase()}</span>
+          </div>
+          ${complementosHtml}
+        </div>`;
+    }).join('');
+  }
+
+  function formatarItensParaPreview(itens) {
+    const blocos = [];
+    itens.forEach(item => {
+      const linha = (item.descricao || '').trim();
+      if (!linha) return;
+      const match = linha.match(/^(\d{1,3})\s+(.+)/);
+      if (match) {
+        blocos.push({ qtd: match[1].padStart(2, '0'), descricao: match[2], complementos: [] });
+      } else if (blocos.length) {
+        blocos[blocos.length - 1].complementos.push(linha);
+      } else {
+        blocos.push({ qtd: '', descricao: linha, complementos: [] });
+      }
+    });
+
+    return blocos.map(bloco => {
+      const complementosHtml = bloco.complementos.map(c => {
+        const isValor = /r\$|valor|\d+[.,]\d{2}/i.test(c);
+        return `<div class="doc-item" style="padding-left:38px;${isValor ? 'color:#666;font-size:11px;font-style:italic;' : 'font-size:12px;color:#444;'}"><span>${window.AppUtils.escapeHtml(c.toUpperCase())}</span></div>`;
+      }).join('');
+
+      return `
+        <div style="padding:4px 0;border-bottom:1px solid #eee;">
+          <div class="doc-item">
+            <span style="min-width:28px;font-weight:bold;color:#555;display:inline-block;">${bloco.qtd}</span>
+            <span>${window.AppUtils.escapeHtml(bloco.descricao.toUpperCase())}</span>
+          </div>
+          ${complementosHtml}
+        </div>`;
+    }).join('');
+  }
+
   function sanitizeFileName(title) {
     const normalized = String(title || 'orcamento')
       .normalize('NFD')
@@ -670,10 +728,7 @@ async function baixarPreviewPdf(data, triggerButton) {
       } catch (e) {}
 
       const itensMarkup = data.itens.length
-        ? data.itens.map(item => `
-            <div style="font-size:13px;text-transform:uppercase;margin-bottom:6px;">
-              ${item.descricao.toUpperCase()}
-            </div>`).join('')
+        ? formatarItensParaPDF(data.itens)
         : '<p>SEM ITENS</p>';
 
       const janela = window.open('', '_blank');
@@ -781,10 +836,9 @@ _Tel.: 99997-6648_
         });
       } catch (e) {}
 
-      const itensMarkup = data.itens.map(item => `
-        <div style="font-size:13px;text-transform:uppercase;margin-bottom:6px;">
-          ${item.descricao.toUpperCase()}
-        </div>`).join('');
+      const itensMarkup = data.itens.length
+        ? formatarItensParaPDF(data.itens)
+        : '<p>SEM ITENS</p>';
 
       const janela = window.open('', '_blank');
       janela.document.write(`<!DOCTYPE html>
