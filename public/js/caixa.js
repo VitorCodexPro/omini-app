@@ -308,6 +308,10 @@ body { background:white; font-family:Arial,sans-serif; }
           <select class="input" id="periodo-select">${opsPeriodos || '<option>Nenhum período</option>'}</select>
         </div>
 
+        <button class="btn btn-outline btn-small" id="btn-pdf-caixa" style="width:100%;margin-bottom:12px;border:1.5px solid var(--accent);color:var(--accent);background:transparent;">
+          Gerar Relatório PDF
+        </button>
+
         <div id="caixa-resumo"></div>
 
         <div class="filter-row" style="margin:10px 0;">
@@ -323,9 +327,7 @@ body { background:white; font-family:Arial,sans-serif; }
 
         <div id="caixa-lista">${window.AppUtils.renderSkeletonCards(3)}</div>
 
-        <button class="btn btn-outline btn-small" id="btn-pdf-caixa" style="width:100%;margin-top:12px;border:1.5px solid var(--accent);color:var(--accent);background:transparent;">
-          Gerar Relatório PDF
-        </button>
+
       </section>
     `;
 
