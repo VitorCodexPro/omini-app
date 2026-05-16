@@ -441,10 +441,14 @@
                 <img src="${logoSrc}" style="height:100px;width:auto;margin-bottom:16px;display:block;" />
                 <h2 style="text-align:center;font-size:18px;letter-spacing:1px;margin-bottom:8px;">ORÇAMENTO</h2>
                 ${numero}
-                <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.titulo.toUpperCase()}</p>
-                <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.cliente_nome.toUpperCase()}</p>
-                <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.local_data.toUpperCase()}</p>
-                <p style="text-transform:uppercase;font-size:13px;margin-bottom:20px;font-weight:bold;">AC. ${(data.atencao || '').toUpperCase()}</p>
+                <div style="background:#f8f7f5;border:1px solid #e5e4e0;border-radius:6px;padding:14px;margin-bottom:16px;">
+                  <p style="font-size:14px;font-weight:bold;margin-bottom:8px;text-transform:uppercase;">${data.titulo.toUpperCase()}</p>
+                  <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:#555;">
+                    <div><span style="color:#999;font-size:9px;text-transform:uppercase;display:block;">Cliente</span><strong style="color:#111;">${data.cliente_nome.toUpperCase()}</strong></div>
+                    <div><span style="color:#999;font-size:9px;text-transform:uppercase;display:block;">Local / Data</span>${data.local_data.toUpperCase()}</div>
+                    <div><span style="color:#999;font-size:9px;text-transform:uppercase;display:block;">Atenção</span>AC. ${(data.atencao || '').toUpperCase()}</div>
+                  </div>
+                </div>
                 <div style="margin-bottom:20px;">${itensHtml}</div>
                 <div style="display:flex;justify-content:space-between;border-top:1px solid #444;border-bottom:1px solid #444;padding:10px 0;margin-bottom:18px;font-weight:bold;font-size:14px;">
                   <span>TOTAL</span>
@@ -583,10 +587,14 @@ ${paginas}
             <h2 class="doc-title">ORÇAMENTO</h2>
             ${data.numero ? `<p style="text-align:center;font-size:11px;color:#666;margin-bottom:16px;letter-spacing:1px;">Nº OMI-${new Date().getFullYear()}-${String(data.numero).padStart(4,'0')}</p>` : ''}
 
-            <p class="doc-line">${window.AppUtils.escapeHtml(data.titulo.toUpperCase())}</p>
-            <p class="doc-line">${window.AppUtils.escapeHtml(data.cliente_nome.toUpperCase())}</p>
-            <p class="doc-line">${window.AppUtils.escapeHtml(data.local_data.toUpperCase())}</p>
-            <p class="doc-line">AC. ${window.AppUtils.escapeHtml((data.atencao || '').toUpperCase())}</p>
+            <div style="background:#f8f7f5;border:1px solid #e5e4e0;border-radius:6px;padding:14px;margin-bottom:8px;">
+              <p style="font-size:14px;font-weight:bold;margin-bottom:8px;">${window.AppUtils.escapeHtml(data.titulo.toUpperCase())}</p>
+              <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:#555;">
+                <div><span style="color:#999;font-size:9px;text-transform:uppercase;display:block;">Cliente</span><strong style="color:#111;">${window.AppUtils.escapeHtml(data.cliente_nome.toUpperCase())}</strong></div>
+                <div><span style="color:#999;font-size:9px;text-transform:uppercase;display:block;">Local / Data</span>${window.AppUtils.escapeHtml(data.local_data.toUpperCase())}</div>
+                <div><span style="color:#999;font-size:9px;text-transform:uppercase;display:block;">Atenção</span>AC. ${window.AppUtils.escapeHtml((data.atencao || '').toUpperCase())}</div>
+              </div>
+            </div>
 
             <div class="doc-items">
               ${itensMarkup}
@@ -754,10 +762,14 @@ async function baixarPreviewPdf(data, triggerButton) {
             <img src="${logoSrc}" style="height:100px;width:auto;margin-bottom:16px;display:block;" />
             <h2 style="text-align:center;font-size:18px;letter-spacing:1px;margin-bottom:8px;">ORÇAMENTO</h2>
             ${data.numero ? `<p style="text-align:center;font-size:11px;color:#666;margin-bottom:16px;letter-spacing:1px;">Nº OMI-${new Date().getFullYear()}-${String(data.numero).padStart(4,'0')}</p>` : ''}
-            <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.titulo.toUpperCase()}</p>
-            <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.cliente_nome.toUpperCase()}</p>
-            <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.local_data.toUpperCase()}</p>
-            <p style="text-transform:uppercase;font-size:13px;margin-bottom:20px;font-weight:bold;">AC. ${(data.atencao || '').toUpperCase()}</p>
+            <div style="background:#f8f7f5;border:1px solid #e5e4e0;border-radius:6px;padding:14px;margin-bottom:16px;">
+              <p style="font-size:14px;font-weight:bold;margin-bottom:8px;text-transform:uppercase;">${data.titulo.toUpperCase()}</p>
+              <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:#555;">
+                <div><span style="color:#999;font-size:9px;text-transform:uppercase;display:block;">Cliente</span><strong style="color:#111;">${data.cliente_nome.toUpperCase()}</strong></div>
+                <div><span style="color:#999;font-size:9px;text-transform:uppercase;display:block;">Local / Data</span>${data.local_data.toUpperCase()}</div>
+                <div><span style="color:#999;font-size:9px;text-transform:uppercase;display:block;">Atenção</span>AC. ${(data.atencao || '').toUpperCase()}</div>
+              </div>
+            </div>
             <div style="margin-bottom:20px;">${itensMarkup}</div>
             <div style="display:flex;justify-content:space-between;border-top:1px solid #444;border-bottom:1px solid #444;padding:10px 0;margin-bottom:18px;font-weight:bold;font-size:14px;">
               <span>TOTAL</span>
@@ -857,10 +869,14 @@ _Tel.: 99997-6648_
             <img src="${logoSrc}" style="height:100px;width:auto;margin-bottom:16px;display:block;" />
             <h2 style="text-align:center;font-size:18px;letter-spacing:1px;margin-bottom:8px;">ORÇAMENTO</h2>
             ${data.numero ? `<p style="text-align:center;font-size:11px;color:#666;margin-bottom:16px;letter-spacing:1px;">Nº OMI-${new Date().getFullYear()}-${String(data.numero).padStart(4,'0')}</p>` : ''}
-            <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.titulo.toUpperCase()}</p>
-            <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.cliente_nome.toUpperCase()}</p>
-            <p style="text-transform:uppercase;font-size:13px;margin-bottom:5px;font-weight:bold;">${data.local_data.toUpperCase()}</p>
-            <p style="text-transform:uppercase;font-size:13px;margin-bottom:20px;font-weight:bold;">AC. ${(data.atencao || '').toUpperCase()}</p>
+            <div style="background:#f8f7f5;border:1px solid #e5e4e0;border-radius:6px;padding:14px;margin-bottom:16px;">
+              <p style="font-size:14px;font-weight:bold;margin-bottom:8px;text-transform:uppercase;">${data.titulo.toUpperCase()}</p>
+              <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:#555;">
+                <div><span style="color:#999;font-size:9px;text-transform:uppercase;display:block;">Cliente</span><strong style="color:#111;">${data.cliente_nome.toUpperCase()}</strong></div>
+                <div><span style="color:#999;font-size:9px;text-transform:uppercase;display:block;">Local / Data</span>${data.local_data.toUpperCase()}</div>
+                <div><span style="color:#999;font-size:9px;text-transform:uppercase;display:block;">Atenção</span>AC. ${(data.atencao || '').toUpperCase()}</div>
+              </div>
+            </div>
             <div style="margin-bottom:20px;">${itensMarkup}</div>
             <div style="display:flex;justify-content:space-between;border-top:1px solid #444;border-bottom:1px solid #444;padding:10px 0;margin-bottom:18px;font-weight:bold;font-size:14px;">
               <span>TOTAL</span>
