@@ -1104,22 +1104,46 @@ _Tel.: 99997-6648_
           ${detailsItensMarkup(itens)}
         </div>
 
-        <h4 class="section-title" style="font-size:0.92rem;">Mudar Status</h4>
-        <div class="status-actions" style="margin:10px 0 12px;">
-          <button class="btn btn-secondary btn-small" data-status-change="pendente">Pendente</button>
-          <button class="btn btn-success btn-small" data-status-change="aprovado">Aprovado</button>
-          <button class="btn btn-danger btn-small" data-status-change="recusado">Recusado</button>
+        <div style="margin:10px 0 12px;">
+          <p style="font-family:Rajdhani,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:8px;">Status atual</p>
+          <div style="padding:12px 14px;border-radius:8px;border:1px solid ${data.status === 'pendente' ? 'rgba(224,168,92,0.4)' : data.status === 'aprovado' ? 'rgba(92,184,92,0.4)' : data.status === 'pago' ? 'rgba(92,184,92,0.4)' : 'rgba(224,92,92,0.4)'};background:${data.status === 'pendente' ? 'rgba(224,168,92,0.1)' : data.status === 'aprovado' ? 'rgba(92,184,92,0.1)' : data.status === 'pago' ? 'rgba(92,184,92,0.1)' : 'rgba(224,92,92,0.1)'};display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:${data.status === 'pendente' ? '#e0a85c' : data.status === 'aprovado' ? '#5cb85c' : data.status === 'pago' ? '#5cb85c' : '#e05c5c'};"></div>
+            <span style="font-size:13px;font-weight:600;color:${data.status === 'pendente' ? '#ffd39a' : data.status === 'aprovado' ? '#b9ecb9' : data.status === 'pago' ? '#b9ecb9' : '#ffd2d2'};">${data.status === 'pago' ? 'Pago — ' + window.AppUtils.formatCurrencyBRL(data.total || 0) : data.status === 'pendente' ? 'Pendente' : data.status === 'aprovado' ? 'Aprovado' : 'Recusado'}</span>
+          </div>
+
+          ${data.status === 'pago'
+            ? `<p style="font-size:10px;color:#888;margin-bottom:6px;">Alterar para:</p>
+               <div style="display:flex;flex-direction:column;gap:6px;">
+                 <div class="status-opt" data-status-change="pendente" style="padding:10px 14px;border-radius:8px;border:1px solid #2a2a2a;display:flex;align-items:center;gap:10px;cursor:pointer;">
+                   <div style="width:8px;height:8px;border-radius:50%;background:#e0a85c;"></div>
+                   <span style="font-size:12px;color:#f0ede8;">Pendente</span>
+                 </div>
+               </div>
+               <button class="btn btn-ghost btn-small" id="btn-desfazer-pago" style="width:100%;margin-top:8px;">Desfazer Pagamento</button>`
+            : `<p style="font-size:10px;color:#888;margin-bottom:6px;">Alterar para:</p>
+               <div style="display:flex;flex-direction:column;gap:6px;">
+                 ${data.status !== 'pendente' ? `
+                 <div class="status-opt" data-status-change="pendente" style="padding:10px 14px;border-radius:8px;border:1px solid #2a2a2a;display:flex;align-items:center;gap:10px;cursor:pointer;">
+                   <div style="width:8px;height:8px;border-radius:50%;background:#e0a85c;"></div>
+                   <span style="font-size:12px;color:#f0ede8;">Pendente</span>
+                 </div>` : ''}
+                 ${data.status !== 'aprovado' ? `
+                 <div class="status-opt" data-status-change="aprovado" style="padding:10px 14px;border-radius:8px;border:1px solid #2a2a2a;display:flex;align-items:center;gap:10px;cursor:pointer;">
+                   <div style="width:8px;height:8px;border-radius:50%;background:#5cb85c;"></div>
+                   <span style="font-size:12px;color:#f0ede8;">Aprovado</span>
+                 </div>` : ''}
+                 ${data.status !== 'recusado' ? `
+                 <div class="status-opt" data-status-change="recusado" style="padding:10px 14px;border-radius:8px;border:1px solid #2a2a2a;display:flex;align-items:center;gap:10px;cursor:pointer;">
+                   <div style="width:8px;height:8px;border-radius:50%;background:#e05c5c;"></div>
+                   <span style="font-size:12px;color:#f0ede8;">Recusado</span>
+                 </div>` : ''}
+                 <div class="status-opt" data-status-change="pago" style="padding:10px 14px;border-radius:8px;border:1px solid rgba(92,184,92,0.4);background:rgba(92,184,92,0.06);display:flex;align-items:center;gap:10px;cursor:pointer;">
+                   <div style="width:8px;height:8px;border-radius:50%;background:#5cb85c;"></div>
+                   <span style="font-size:12px;color:#5cb85c;font-weight:600;">Marcar como Pago</span>
+                 </div>
+               </div>`
+          }
         </div>
-        ${data.status === 'pago'
-          ? `<div style="width:100%;margin-bottom:8px;padding:12px;background:rgba(92,184,92,0.12);border:1.5px solid rgba(92,184,92,0.4);border-radius:8px;text-align:center;">
-               <p style="color:#5cb85c;font-weight:600;font-size:0.9rem;">Valor Pago</p>
-               <p style="color:#5cb85c;font-family:IBM Plex Mono,monospace;font-size:1.1rem;font-weight:700;margin-top:4px;">${window.AppUtils.formatCurrencyBRL(data.total || 0)}</p>
-             </div>
-             <button class="btn btn-ghost btn-small" id="btn-desfazer-pago" style="width:100%;margin-bottom:8px;">Desfazer Pagamento</button>`
-          : `<button class="btn btn-small" data-status-change="pago" style="width:100%;margin-bottom:8px;background:rgba(92,184,92,0.15);color:#5cb85c;border:1.5px solid rgba(92,184,92,0.5);">
-               Marcar como Pago
-             </button>`
-        }
 
         <div class="btn-row">
           <button class="btn btn-secondary" id="btn-detalhe-editar">Editar</button>
@@ -1155,6 +1179,8 @@ _Tel.: 99997-6648_
         button.addEventListener('click', () => {
           alterarStatusOrcamento(id, button.dataset.statusChange, button);
         });
+        button.addEventListener('mouseover', () => { if (button.classList.contains('status-opt')) button.style.background = '#2a2a2a'; });
+        button.addEventListener('mouseout', () => { if (button.classList.contains('status-opt')) button.style.background = ''; });
       });
 
       document.getElementById('btn-desfazer-pago')?.addEventListener('click', async (e) => {
