@@ -189,6 +189,7 @@ async function listarOrcamentosComJoin() {
       validade,
       status,
       criado_em,
+      atualizado_em,
       clientes (
         id,
         nome,
