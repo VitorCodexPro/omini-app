@@ -519,7 +519,7 @@ module.exports = async function handler(req, res) {
 
       const { data, error } = await supabase
         .from('orcamentos')
-        .update({ status })
+        .update({ status, atualizado_em: new Date().toISOString() })
         .eq('id', id)
         .select('*')
         .maybeSingle();

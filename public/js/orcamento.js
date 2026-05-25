@@ -311,7 +311,7 @@
     const quinzeDias = 15 * 24 * 60 * 60 * 1000;
     let orcamentos = state.orcamentos.filter(o => {
       if (o.status === 'pago') return false;
-      if (o.status === 'pendente' && (agora - new Date(o.criado_em)) > quinzeDias) return false;
+      if (o.status === 'pendente' && (agora - new Date(o.atualizado_em || o.criado_em)) > quinzeDias) return false;
       return true;
     });
 
@@ -1768,8 +1768,8 @@ _Tel.: 99997-6648_
 
       const arquivados = state.orcamentos.filter(o => {
         if (o.status !== 'pendente') return false;
-        const criado = new Date(o.criado_em);
-        return (agora - criado) > quinzeDias;
+        const ref = new Date(o.atualizado_em || o.criado_em);
+        return (agora - ref) > quinzeDias;
       });
 
       const lista = document.getElementById('arquivados-lista');
@@ -1783,7 +1783,7 @@ _Tel.: 99997-6648_
       lista.innerHTML = `<div class="list-stack">${arquivados.map(orc => {
         const numero = orc.numero ? `OMI-${new Date(orc.criado_em).getFullYear()}-${String(orc.numero).padStart(4,'0')}` : '';
         const clienteNome = getClienteNome(orc);
-        const diasPassados = Math.floor((agora - new Date(orc.criado_em)) / (24 * 60 * 60 * 1000));
+        const diasPassados = Math.floor((agora - new Date(orc.atualizado_em || orc.criado_em)) / (24 * 60 * 60 * 1000));
         return `
           <article class="card" style="display:grid;gap:8px;opacity:0.8;">
             <div class="orcamento-head">
