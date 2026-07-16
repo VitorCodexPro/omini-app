@@ -84,9 +84,10 @@ body { background: white; font-family: Arial, sans-serif; }
         <td style="padding:10px 0;">${formatarData(recibo.data_recibo)}</td>
       </tr>
     </table>
-    <div style="margin-top:50px;text-align:center;">
-      <div style="border-top:1px solid #111;width:260px;margin:0 auto;padding-top:8px;font-size:12px;">
-        Assinatura / OMINI SISTEMAS INTEGRADOS
+    <div style="margin-top:40px;text-align:center;">
+      <img src="${logoSrc.replace('logo.png','assinatura.png')}" style="height:60px;width:auto;margin-bottom:4px;" />
+      <div style="border-top:1px solid #111;width:280px;margin:0 auto;padding-top:8px;font-size:12px;">
+        OMINI SISTEMAS INTEGRADOS
       </div>
     </div>
     <div style="border-top:1px solid #666;padding-top:12px;text-align:center;font-size:11px;line-height:1.6;text-transform:uppercase;margin-top:40px;">
