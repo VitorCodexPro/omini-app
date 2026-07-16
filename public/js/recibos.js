@@ -35,6 +35,13 @@
       logoWatermark = await new Promise(res => { const fr = new FileReader(); fr.onloadend = () => res(fr.result); fr.readAsDataURL(b); });
     } catch(e) {}
 
+    let assinaturaSrc = '/img/assinatura.png';
+    try {
+      const r = await fetch('/img/assinatura.png');
+      const b = await r.blob();
+      assinaturaSrc = await new Promise(res => { const fr = new FileReader(); fr.onloadend = () => res(fr.result); fr.readAsDataURL(b); });
+    } catch(e) {}
+
     const janela = window.open('', '_blank');
     janela.document.write(`<!DOCTYPE html>
 <html><head>
@@ -85,7 +92,7 @@ body { background: white; font-family: Arial, sans-serif; }
       </tr>
     </table>
     <div style="margin-top:40px;text-align:center;">
-      <img src="${logoSrc.replace('logo.png','assinatura.png')}" style="height:60px;width:auto;margin-bottom:4px;" />
+      <img src="${assinaturaSrc}" style="height:60px;width:auto;margin-bottom:4px;" />
       <div style="border-top:1px solid #111;width:280px;margin:0 auto;padding-top:8px;font-size:12px;">
         OMINI SISTEMAS INTEGRADOS
       </div>
