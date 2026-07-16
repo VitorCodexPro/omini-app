@@ -92,7 +92,7 @@ body { background: white; font-family: Arial, sans-serif; }
       </tr>
     </table>
     <div style="margin-top:40px;text-align:center;">
-      <img src="${assinaturaSrc}" style="height:100px;width:auto;margin-bottom:-8px;" />
+      <img src="${assinaturaSrc}" style="height:160px;width:auto;margin-bottom:-20px;display:block;margin-left:auto;margin-right:auto;" />
       <div style="border-top:1px solid #111;width:280px;margin:0 auto;padding-top:8px;font-size:12px;">
         OMINI SISTEMAS INTEGRADOS
       </div>
