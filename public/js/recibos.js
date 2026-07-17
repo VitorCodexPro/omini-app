@@ -91,9 +91,11 @@ body { background: white; font-family: Arial, sans-serif; }
         <td style="padding:10px 0;">${formatarData(recibo.data_recibo)}</td>
       </tr>
     </table>
-    <div style="margin-top:40px;text-align:center;position:relative;">
-      <div style="border-top:1px solid #111;width:280px;margin:0 auto;padding-top:8px;font-size:12px;position:relative;">
-        <img src="${assinaturaSrc}" style="height:120px;width:auto;position:absolute;bottom:8px;left:50%;transform:translateX(-50%);" />
+    <div style="margin-top:30px;text-align:center;">
+      <div style="height:80px;position:relative;width:280px;margin:0 auto;">
+        <img src="${assinaturaSrc}" style="height:140px;width:auto;position:absolute;bottom:0;left:50%;transform:translateX(-50%);" />
+      </div>
+      <div style="border-top:1px solid #111;width:280px;margin:0 auto;padding-top:8px;font-size:12px;">
         OMINI SISTEMAS INTEGRADOS
       </div>
     </div>
