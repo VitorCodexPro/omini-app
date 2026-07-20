@@ -181,7 +181,7 @@ body { background:white; font-family:Arial,sans-serif; }
     window.AppUtils.showToast('Na impressão: desmarque "Cabeçalhos e rodapés".', 'success');
   }
 
-  function abrirFormMovimento(tipo, item) {
+  function abrirFormMovimento(tipo, item, periodo) {
     const isEdit = Boolean(item);
     const isEntrada = tipo === 'entrada';
     const modalId = `mov-form-${Date.now()}`;
@@ -210,8 +210,9 @@ body { background:white; font-family:Arial,sans-serif; }
           <input type="number" step="0.01" class="input" id="mov-valor" placeholder="0,00" value="${item?.valor || ''}" required />
         </div>
         <div class="form-group">
-          <label>Data</label>
+          <label>Data da movimentação</label>
           <input type="date" class="input" id="mov-data" value="${item?.data_entrada || item?.data_despesa || hoje()}" />
+          <p style="font-size:11px;color:#888;margin-top:4px;">Altere a data para registrar lançamentos de dias anteriores.</p>
         </div>
         <div class="btn-row" style="margin-top:8px;">
           <button type="button" class="btn btn-ghost" data-close>Cancelar</button>
@@ -332,8 +333,10 @@ body { background:white; font-family:Arial,sans-serif; }
     `;
 
     document.getElementById('btn-cats-caixa')?.addEventListener('click', abrirGerenciarCategorias);
-    document.getElementById('btn-nova-entrada')?.addEventListener('click', () => abrirFormMovimento('entrada', null));
-    document.getElementById('btn-nova-despesa')?.addEventListener('click', () => abrirFormMovimento('despesa', null));
+    let periodoSelecionado = null;
+
+    document.getElementById('btn-nova-entrada')?.addEventListener('click', () => abrirFormMovimento('entrada', null, periodoSelecionado));
+    document.getElementById('btn-nova-despesa')?.addEventListener('click', () => abrirFormMovimento('despesa', null, periodoSelecionado));
 
     document.querySelectorAll('[data-periodo]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -477,8 +480,11 @@ body { background:white; font-family:Arial,sans-serif; }
     const periodoSelect = document.getElementById('periodo-select');
     periodoSelect?.addEventListener('change', () => {
       filtroPeriodo = periodoSelect.value;
+      periodoSelecionado = periodoSelect.value;
       carregarMovimentos(periodoSelect.value);
     });
+
+    if (periodoSel) periodoSelecionado = periodoSel;
 
     if (periodoSel) await carregarMovimentos(periodoSel);
     else {
